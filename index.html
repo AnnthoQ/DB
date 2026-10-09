@@ -31,22 +31,22 @@ button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stam
 #login{max-width:340px;margin-top:10vh}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:3px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
 .toast.show{opacity:1}.toast.error{background:var(--stamp)}
-#barra{display:none}
 @media(max-width:860px){
- .wrap{padding:14px 12px calc(84px + env(safe-area-inset-bottom))}
+ .wrap{padding:14px 12px calc(24px + env(safe-area-inset-bottom))}
  h1{font-size:1.1rem}
  input,select{font-size:16px;min-height:46px}
  button{min-height:46px;font-size:.95rem}
- .row button{min-width:52px}
- .it{flex-wrap:wrap;padding:12px 2px}.it>div:first-child{flex:1 1 100%}
+  .it{flex-wrap:wrap;padding:12px 2px}.it>div:first-child{flex:1 1 100%}
  .add{width:100%}.add .n{width:76px}.add button{flex:1}
  .sm{width:38px;height:38px;min-height:38px;font-size:1.1rem}
  .ln{gap:6px;padding:9px 0}#lista{max-height:none}
- #barra{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;justify-content:space-between;align-items:center;gap:10px;background:var(--ink);color:var(--paper);padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
- #barra b{color:#fff;font-size:1.15rem;margin-left:6px}
- #barra button{background:var(--stamp);border-color:var(--stamp);min-height:42px}
- .toast{bottom:calc(76px + env(safe-area-inset-bottom))}
+ #tn,#fa{display:none}
+ .c{text-align:center}
+ #q{text-align:center}
+ .row{max-width:520px;margin:0 auto 10px}
 }
+summary{font-weight:600;font-size:.95rem;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:32px}
+summary::-webkit-details-marker{display:none}summary::after{content:'▾';font-size:1.2rem;transition:transform .2s}details[open]>summary::after{transform:rotate(180deg)}
 </style></head><body>
 
 <div id="login" class="wrap"><div class="panel">
@@ -59,8 +59,8 @@ button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stam
  <header><h1>Caja · Librería SENATI</h1><div><span class="sub" id="fecha"></span> <button class="sec" id="salir" style="padding:4px 8px">Salir</button></div></header>
  <div class="grid">
   <section class="panel">
-   <h2>Buscar producto</h2>
-   <div class="row"><input id="q" type="search" placeholder="Ej: impresión, espiral, A3…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"><button class="sec" id="ref" title="Actualizar catálogo">↻</button></div>
+   <h2 class="c">Buscar producto</h2>
+   <div class="row"><input id="q" type="search" placeholder="Ej: impresión, espiral, A3…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></div>
    <div id="lista"></div>
    <button class="link" id="tn">+ Agregar producto nuevo</button>
    <div id="fa" hidden><div class="f3"><input id="np" placeholder="Nombre"><input id="pr" type="number" step="0.01" min="0" placeholder="Precio S/"><input id="pgn" type="number" min="0" placeholder="PG"></div><button id="gp">Guardar producto</button></div>
@@ -68,7 +68,7 @@ button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stam
   <section>
    <div class="recibo" id="rec"><div style="text-align:center;margin-bottom:8px" class="meta" id="rf"></div>
     <div id="lineas"></div><div class="tot"><span>TOTAL</span><b id="total">S/ 0.00</b></div></div>
-   <div class="panel"><h2>Cerrar caja</h2><div class="g2">
+   <details class="panel" id="cierre"><summary>Cerrar caja</summary><div class="g2" style="margin-top:12px">
     <div><label>Turno</label><select id="turno"><option>Mañana</option><option>Tarde</option></select></div>
     <div><label>Operador (opcional)</label><input id="op"></div>
     <div class="full meta">Librería se calcula sola. Lo demás lo ingresas tú:</div>
@@ -81,11 +81,10 @@ button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stam
     <div><label>N° operación</label><input id="nop"></div>
     <div><label>Total S/ (efectivo real)</label><input id="tt" type="number" step="0.01" min="0"></div>
     <div class="full"><button class="stamp" id="pdf">Generar PDF y cerrar caja</button></div>
-   </div></div>
+   </div></details>
   </section>
  </div>
 </div>
-<div id="barra"><span>TOTAL<b id="total2">S/ 0.00</b></span><button id="vr">Ver recibo ↓</button></div>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -130,7 +129,7 @@ async function sync(manual){
  const{data,error}=await sb.from('productos').select('id,producto,precio,pg').order('producto');
  if(error)return toast('Catálogo: '+error.message,1);
  cat=prep(data);await idb.set('cat',data);buscar();if(manual)toast('Catálogo actualizado ('+data.length+')')}
-$('ref').onclick=()=>sync(true);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!$('app').hidden)sync()});
 function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i,...Array(b.length).fill(0)]);for(let j=0;j<=b.length;j++)d[0][j]=j;
  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]:1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);return d[a.length][b.length]}
 const lq=()=>{$('q').value='';buscar()};
@@ -175,7 +174,7 @@ function pintar(){
    h('button',{className:'sm',textContent:'−',onclick:()=>ajustar(i.producto_id,-1)}),h('span',{textContent:i.cantidad}),
    h('button',{className:'sm',textContent:'+',onclick:()=>ajustar(i.producto_id,1)}),
    h('b',{textContent:'S/ '+s.toFixed(2)}),h('button',{className:'sm x',textContent:'×',title:'Quitar',onclick:()=>ajustar(i.producto_id,-i.cantidad)})))});
- $('total').textContent=$('total2').textContent='S/ '+t.toFixed(2)}
+ $('total').textContent='S/ '+t.toFixed(2)}
 
 // ---- Cierre + PDF ----
 $('pdf').onclick=async()=>{
@@ -216,8 +215,8 @@ function hacerPdf(items,f){
  d.setFont('helvetica','bold');d.setFontSize(15);d.text('TOTAL : '+(m(f.total_manual)||'____________'),cx,y+5*fa+60,{align:'center'});
  d.save('SENATI_CAJA_'+new Date().toISOString().slice(0,19).replace(/[-:T]/g,'')+'.pdf')}
 
-$('vr').onclick=()=>$('rec').scrollIntoView({behavior:'smooth'});
 document.querySelectorAll('#app input[step]').forEach(i=>i.inputMode='decimal');
+$('cierre').open=!matchMedia('(max-width:860px)').matches;
 sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT')mostrar(false)});
 entrar();
 </script></body></html>
