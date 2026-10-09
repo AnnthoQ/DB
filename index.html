@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Caja · SENATI</title><meta name="theme-color" content="#241F1C">
+<style>
+:root{--paper:#F6F1E7;--bg:#EDE5D3;--ink:#241F1C;--soft:#5B5349;--line:#D9CDB5;--stamp:#A8341F}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px Inter,system-ui,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
+header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:20px;gap:8px}
+h1{font-size:1.3rem;margin:0}h2{font-size:.95rem;margin:0 0 10px}
+.sub,.meta{font:.78rem ui-monospace,monospace;color:var(--soft)}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:16px;margin-bottom:14px}
+input,select{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink);width:100%}
+input:focus,select:focus{outline:2px solid var(--stamp)}
+button{font:600 .85rem inherit;cursor:pointer;border-radius:3px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:9px 13px}
+button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stamp{background:var(--stamp);border-color:var(--stamp);width:100%}
+.row{display:flex;gap:8px;margin-bottom:10px}.row input{flex:1}.row button{width:auto}
+#lista{max-height:60vh;overflow:auto}
+.it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px dashed var(--line)}
+.add{display:flex;gap:6px;flex-shrink:0}.add .n{width:60px;text-align:center}
+.empty{color:var(--soft);font-size:.85rem;padding:8px 2px}
+.link{background:none;border:none;color:var(--soft);text-decoration:underline;padding:10px 0 0;font-weight:500}
+.f3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin:10px 0}
+.recibo{background:#FFFDF8;border:1px solid var(--line);padding:18px 14px 6px;margin-bottom:14px;font-family:ui-monospace,monospace}
+.ln{display:flex;align-items:center;gap:8px;font-size:.85rem;padding:7px 0;border-bottom:1px dashed var(--line)}.ln .d{flex:1}
+.sm{width:24px;height:24px;padding:0;background:var(--bg);color:var(--ink);border-color:var(--line)}.x{color:var(--stamp);background:none;border:none}
+.tot{display:flex;justify-content:space-between;font-weight:700;font-size:1.15rem;padding:14px 0}.tot b{color:var(--stamp)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g2 label{font-size:.7rem;color:var(--soft);display:block;margin-bottom:3px}.full{grid-column:1/-1}
+#login{max-width:340px;margin-top:10vh}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:3px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+.toast.show{opacity:1}.toast.error{background:var(--stamp)}
+</style></head><body>
+
+<div id="login" class="wrap"><div class="panel">
+ <h1 style="margin-bottom:14px">Caja · SENATI</h1>
+ <form id="lg"><label class="meta">Código</label><input id="cod" autocomplete="username" required style="margin-bottom:10px">
+ <label class="meta">Contraseña</label><input id="pw" type="password" autocomplete="current-password" required style="margin-bottom:14px">
+ <button class="stamp">Ingresar</button></form></div></div>
+
+<div id="app" class="wrap" hidden>
+ <header><h1>Caja · Librería SENATI</h1><div><span class="sub" id="fecha"></span> <button class="sec" id="salir" style="padding:4px 8px">Salir</button></div></header>
+ <div class="grid">
+  <section class="panel">
+   <h2>Buscar producto</h2>
+   <div class="row"><input id="q" placeholder="Ej: impresión, espiral, A3…" autocomplete="off"><button class="sec" id="ref" title="Actualizar catálogo">↻</button></div>
+   <div id="lista"></div>
+   <button class="link" id="tn">+ Agregar producto nuevo</button>
+   <div id="fa" hidden><div class="f3"><input id="np" placeholder="Nombre"><input id="pr" type="number" step="0.01" min="0" placeholder="Precio S/"><input id="pgn" type="number" min="0" placeholder="PG"></div><button id="gp">Guardar producto</button></div>
+  </section>
+  <section>
+   <div class="recibo"><div style="text-align:center;margin-bottom:8px" class="meta" id="rf"></div>
+    <div id="lineas"></div><div class="tot"><span>TOTAL</span><b id="total">S/ 0.00</b></div></div>
+   <div class="panel"><h2>Cerrar caja</h2><div class="g2">
+    <div><label>Turno</label><select id="turno"><option>Mañana</option><option>Tarde</option></select></div>
+    <div><label>Operador (opcional)</label><input id="op"></div>
+    <div class="full meta">Librería se calcula sola. Lo demás lo ingresas tú:</div>
+    <div><label>Color S/</label><input id="c" type="number" step="0.01" min="0"></div>
+    <div><label>A3 S/</label><input id="a3" type="number" step="0.01" min="0"></div>
+    <div><label>Scan S/</label><input id="sc" type="number" step="0.01" min="0"></div>
+    <div><label>Espiral S/</label><input id="es" type="number" step="0.01" min="0"></div>
+    <div><label>Impresión S/</label><input id="im" type="number" step="0.01" min="0"></div>
+    <div><label>Yape/Plin S/</label><input id="yp" type="number" step="0.01" min="0"></div>
+    <div><label>N° operación</label><input id="nop"></div>
+    <div><label>Total S/ (efectivo real)</label><input id="tt" type="number" step="0.01" min="0"></div>
+    <div class="full"><button class="stamp" id="pdf">Generar PDF y cerrar caja</button></div>
+   </div></div>
+  </section>
+ </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const SB='https://pvgdkcadqakfercyguhd.supabase.co',
+KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2Z2RrY2FkcWFrZmVyY3lndWhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjI4OTEsImV4cCI6MjA4ODg5ODg5MX0.6K3ei27nBJ6jVwSWskrnpYlTUAs4i3nPbbwTm1eGB9M';
+const sb=supabase.createClient(SB,KEY),$=i=>document.getElementById(i);
+const h=(t,p={},...k)=>{const e=document.createElement(t);Object.assign(e,p);e.append(...k);return e};
+const toast=(m,e)=>{const t=$('toast');t.textContent=m;t.className='toast show'+(e?' error':'');setTimeout(()=>t.className='toast',2600)};
+const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const DIAS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const fechaES=d=>`${DIAS[d.getDay()]} ${d.getDate()} de ${MES[d.getMonth()]} del ${d.getFullYear()}`;
+$('fecha').textContent=$('rf').textContent=fechaES(new Date());
+
+// ---- IndexedDB (caché del catálogo) ----
+const idb=(()=>{const p=new Promise(r=>{try{const o=indexedDB.open('caja',1);o.onupgradeneeded=()=>o.result.createObjectStore('k');o.onsuccess=()=>r(o.result);o.onerror=()=>r(null)}catch(e){r(null)}});
+ const tx=async(m,f)=>{const db=await p;if(!db)return null;return new Promise(r=>{const q=f(db.transaction('k',m).objectStore('k'));q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)})};
+ return{get:k=>tx('readonly',s=>s.get(k)),set:(k,v)=>tx('readwrite',s=>s.put(v,k))}})();
+
+// ---- Auth ----
+const mostrar=b=>{$('login').hidden=b;$('app').hidden=!b};
+$('lg').onsubmit=async e=>{e.preventDefault();
+ const{error}=await sb.auth.signInWithPassword({email:$('cod').value.trim()+'@inv.local',password:$('pw').value});
+ if(error)return toast('Código o contraseña incorrectos',1);$('pw').value='';entrar()};
+$('salir').onclick=async()=>{await idb.set('cat',null);if(canal){sb.removeChannel(canal);canal=null}await sb.auth.signOut();cat=[];orden=[];mostrar(false)};
+async function entrar(){
+ const{data:{session}}=await sb.auth.getSession();if(!session)return mostrar(false);
+ const{data:ok}=await sb.rpc('es_operador');
+ if(!ok){await sb.auth.signOut();toast('Tu cuenta no tiene acceso a la caja',1);return mostrar(false)}
+ mostrar(true);iniciar()}
+
+// ---- Catálogo: caché local + sincronización ----
+let cat=[],orden=[],canal=null,tmr=null;
+async function iniciar(){
+ cat=(await idb.get('cat'))||[];buscar();
+ await sync();await cargarOrden();
+ if(!canal)canal=sb.channel('caja').on('postgres_changes',{event:'*',schema:'public',table:'caja_items'},cargarOrden).subscribe();
+ if(!tmr)tmr=setInterval(()=>sync(),300000)}
+async function sync(manual){
+ const{data,error}=await sb.from('productos').select('id,producto,precio,pg').order('producto');
+ if(error)return toast('Catálogo: '+error.message,1);
+ cat=data;await idb.set('cat',data);buscar();if(manual)toast('Catálogo actualizado ('+data.length+')')}
+$('ref').onclick=()=>sync(true);
+function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i,...Array(b.length).fill(0)]);for(let j=0;j<=b.length;j++)d[0][j]=j;
+ for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]:1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);return d[a.length][b.length]}
+function buscar(){
+ const q=norm($('q').value.trim()),l=$('lista');l.replaceChildren();if(!q)return;
+ let r=cat.filter(p=>norm(p.producto).includes(q)),sug=!r.length&&cat.length;
+ if(sug)r=cat.map(p=>[lev(q,norm(p.producto)),p]).sort((a,b)=>a[0]-b[0]).slice(0,3).map(x=>x[1]);
+ if(!r.length)return l.append(h('div',{className:'empty',textContent:'No se encontraron productos.'}));
+ if(sug)l.append(h('div',{className:'empty',textContent:'Sin coincidencia exacta. ¿Quisiste decir…?'}));
+ r.slice(0,50).forEach(p=>{const n=h('input',{type:'number',min:1,value:1,className:'n'});
+  l.append(h('div',{className:'it'},
+   h('div',{},h('b',{textContent:p.producto}),h('div',{className:'meta',textContent:'S/ '+Number(p.precio).toFixed(2)+(p.pg?' · Pág. Kardex: '+p.pg:'')})),
+   h('div',{className:'add'},n,h('button',{textContent:'Vender',onclick:()=>ajustar(p.id,parseInt(n.value))}))))})}
+$('q').oninput=buscar;
+$('tn').onclick=()=>$('fa').hidden=!$('fa').hidden;
+$('gp').onclick=async()=>{
+ const producto=$('np').value.trim(),precio=parseFloat($('pr').value),pg=$('pgn').value;
+ if(!producto||isNaN(precio)||precio<0)return toast('Nombre y precio válidos son obligatorios',1);
+ const row={producto,precio};if(pg!=='')row.pg=parseInt(pg);
+ const{error}=await sb.from('productos').insert(row);if(error)return toast(error.message,1);
+ ['np','pr','pgn'].forEach(i=>$(i).value='');$('fa').hidden=true;await sync();toast('Producto guardado')};
+
+// ---- Orden del día (compartida en tiempo real) ----
+async function ajustar(id,d){
+ if(!d)return toast('Cantidad inválida',1);
+ const{error}=await sb.rpc('caja_ajustar',{p_producto:id,p_delta:d});
+ if(error)toast(error.message,1);else cargarOrden()}
+async function cargarOrden(){
+ const{data,error}=await sb.from('caja_items').select('id,producto_id,nombre,cantidad,precio_unitario').is('cierre_id',null).order('id');
+ if(error)return toast(error.message,1);orden=data;pintar()}
+function pintar(){
+ const c=$('lineas');c.replaceChildren();let t=0;
+ if(!orden.length)c.append(h('div',{className:'empty',textContent:'Aún no registras ventas.'}));
+ orden.forEach(i=>{const s=i.cantidad*i.precio_unitario;t+=s;
+  c.append(h('div',{className:'ln'},h('span',{className:'d',textContent:i.nombre}),
+   h('button',{className:'sm',textContent:'−',onclick:()=>ajustar(i.producto_id,-1)}),h('span',{textContent:i.cantidad}),
+   h('button',{className:'sm',textContent:'+',onclick:()=>ajustar(i.producto_id,1)}),
+   h('b',{textContent:'S/ '+s.toFixed(2)}),h('button',{className:'sm x',textContent:'×',title:'Quitar',onclick:()=>ajustar(i.producto_id,-i.cantidad)})))});
+ $('total').textContent='S/ '+t.toFixed(2)}
+
+// ---- Cierre + PDF ----
+$('pdf').onclick=async()=>{
+ if(!orden.length)return toast('No hay ventas registradas',1);
+ const g=i=>{const v=$(i).value;return v===''?null:parseFloat(v)};
+ const f={turno:$('turno').value,operador:$('op').value.trim(),color:g('c'),a3:g('a3'),scan:g('sc'),espiral:g('es'),impresion:g('im'),yape_plin:g('yp'),n_op:$('nop').value.trim(),total_manual:g('tt')};
+ if(!confirm('Se cerrará la caja del día (la orden quedará vacía) y se generará el PDF. ¿Continuar?'))return;
+ const{data,error}=await sb.rpc('caja_cerrar',{p:f});
+ if(error)return toast(error.message,1);
+ try{hacerPdf(data.items,f)}catch(e){toast('Caja cerrada, pero falló el PDF: '+e.message,1)}
+ cargarOrden();toast('Caja cerrada')};
+
+function hacerPdf(items,f){
+ const d=new window.jspdf.jsPDF({unit:'pt',format:'a4'}),W=595.28,H=841.89,L=99.21,R=28.35,T=85.04,B=85.04,RH=15,GAP=18;
+ const tot=Math.round(items.reduce((a,i)=>a+Number(i.subtotal),0)*100)/100;
+ const bw=(W-L-R-GAP)/2,cw=[.5556,.1605,.2839].map(x=>Math.round(bw*x));cw[2]+=Math.round(bw)-cw[0]-cw[1]-cw[2];
+ const mr=Math.max(Math.floor((H-T-B-40)/RH),5);
+ const bloque=(x,its)=>{d.setFont('helvetica','normal');d.setFontSize(8.5);
+  for(let i=0;i<mr;i++){const y=T+i*RH,it=its[i];
+   if(it){let cx=x;[d.splitTextToSize(it.nombre,cw[0]-6)[0],String(Math.round(it.cantidad)),'S/ '+Number(it.subtotal).toFixed(2)].forEach((v,k)=>{d.text(v,cx+3,y+RH-4);cx+=cw[k]})}
+   d.line(x,y+RH,x+bw,y+RH)}
+  d.line(x,T,x+bw,T);let cx=x;[0,...cw].forEach(w=>{cx+=w;d.line(cx,T,cx,T+RH*mr)})};
+ let rest=items.slice(),first=true;
+ for(;;){
+  if(!first){d.addPage();d.setFont('helvetica','italic');d.setFontSize(8);d.text('(continuación)',L,T-14)}
+  bloque(L,rest.slice(0,mr));bloque(L+bw+GAP,rest.slice(mr,2*mr));rest=rest.slice(2*mr);first=false;
+  if(!rest.length){d.setFont('helvetica','bold');d.setFontSize(11);d.text('TOTAL : S/ '+tot.toFixed(2),L,T+RH*mr+22);break}}
+ // Hoja 2
+ d.addPage();const cx=W/2,LX=55,RX=W-55,y=193,fa=26,m=(v,s=1)=>v==null?'':(s?'S/ ':'')+v.toFixed(2);
+ d.setFont('helvetica','bold');d.setFontSize(18);d.text('SENATI',cx,90,{align:'center'});
+ d.setFont('helvetica','normal');d.setFontSize(14);d.text(fechaES(new Date()),cx,116,{align:'center'});
+ d.setFontSize(12);d.text('Turno: '+f.turno+(f.operador?' — '+f.operador:''),cx,138,{align:'center'});
+ d.text('Librería: S/ '+tot.toFixed(2),LX,y);d.text('Color: '+m(f.color),LX,y+fa);
+ d.text('A3 : '+m(f.a3,0),LX,y+2*fa);d.text('Scan : '+m(f.scan,0),LX,y+3*fa);
+ d.text('Espiral : '+m(f.espiral,0),LX,y+4*fa);d.text('Impresión : '+m(f.impresion,0),LX,y+5*fa);
+ d.text('YAPE/PLIN',RX,y,{align:'right'});d.text(m(f.yape_plin)||'S/',RX,y+fa,{align:'right'});
+ d.text('N° OP.',RX,y+2*fa,{align:'right'});d.text(f.n_op||'',RX,y+3*fa,{align:'right'});
+ d.setFont('helvetica','bold');d.setFontSize(15);d.text('TOTAL : '+(m(f.total_manual)||'____________'),cx,y+5*fa+60,{align:'center'});
+ d.save('SENATI_CAJA_'+new Date().toISOString().slice(0,19).replace(/[-:T]/g,'')+'.pdf')}
+
+sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT')mostrar(false)});
+entrar();
+</script></body></html>
