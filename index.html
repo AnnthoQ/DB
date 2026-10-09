@@ -2,6 +2,13 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Caja · SENATI</title><meta name="theme-color" content="#241F1C">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Caja SENATI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 :root{--paper:#F6F1E7;--bg:#EDE5D3;--ink:#241F1C;--soft:#5B5349;--line:#D9CDB5;--stamp:#A8341F}
 *{box-sizing:border-box}[hidden]{display:none!important}
@@ -237,4 +244,7 @@ $('fab').onclick=abrirBus;
 if(vv){vv.addEventListener('resize',ajVV);vv.addEventListener('scroll',ajVV)}
 sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT')mostrar(false)});
 entrar();
-</script></body></html>
+</script><script>
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body></html>
