@@ -31,6 +31,22 @@ button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stam
 #login{max-width:340px;margin-top:10vh}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:3px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
 .toast.show{opacity:1}.toast.error{background:var(--stamp)}
+#barra{display:none}
+@media(max-width:860px){
+ .wrap{padding:14px 12px calc(84px + env(safe-area-inset-bottom))}
+ h1{font-size:1.1rem}
+ input,select{font-size:16px;min-height:46px}
+ button{min-height:46px;font-size:.95rem}
+ .row button{min-width:52px}
+ .it{flex-wrap:wrap;padding:12px 2px}.it>div:first-child{flex:1 1 100%}
+ .add{width:100%}.add .n{width:76px}.add button{flex:1}
+ .sm{width:38px;height:38px;min-height:38px;font-size:1.1rem}
+ .ln{gap:6px;padding:9px 0}#lista{max-height:none}
+ #barra{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;justify-content:space-between;align-items:center;gap:10px;background:var(--ink);color:var(--paper);padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+ #barra b{color:#fff;font-size:1.15rem;margin-left:6px}
+ #barra button{background:var(--stamp);border-color:var(--stamp);min-height:42px}
+ .toast{bottom:calc(76px + env(safe-area-inset-bottom))}
+}
 </style></head><body>
 
 <div id="login" class="wrap"><div class="panel">
@@ -44,13 +60,13 @@ button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stam
  <div class="grid">
   <section class="panel">
    <h2>Buscar producto</h2>
-   <div class="row"><input id="q" placeholder="Ej: impresión, espiral, A3…" autocomplete="off"><button class="sec" id="ref" title="Actualizar catálogo">↻</button></div>
+   <div class="row"><input id="q" type="search" placeholder="Ej: impresión, espiral, A3…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"><button class="sec" id="ref" title="Actualizar catálogo">↻</button></div>
    <div id="lista"></div>
    <button class="link" id="tn">+ Agregar producto nuevo</button>
    <div id="fa" hidden><div class="f3"><input id="np" placeholder="Nombre"><input id="pr" type="number" step="0.01" min="0" placeholder="Precio S/"><input id="pgn" type="number" min="0" placeholder="PG"></div><button id="gp">Guardar producto</button></div>
   </section>
   <section>
-   <div class="recibo"><div style="text-align:center;margin-bottom:8px" class="meta" id="rf"></div>
+   <div class="recibo" id="rec"><div style="text-align:center;margin-bottom:8px" class="meta" id="rf"></div>
     <div id="lineas"></div><div class="tot"><span>TOTAL</span><b id="total">S/ 0.00</b></div></div>
    <div class="panel"><h2>Cerrar caja</h2><div class="g2">
     <div><label>Turno</label><select id="turno"><option>Mañana</option><option>Tarde</option></select></div>
@@ -69,6 +85,7 @@ button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stam
   </section>
  </div>
 </div>
+<div id="barra"><span>TOTAL<b id="total2">S/ 0.00</b></span><button id="vr">Ver recibo ↓</button></div>
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -79,7 +96,8 @@ KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2Z2
 const sb=supabase.createClient(SB,KEY),$=i=>document.getElementById(i);
 const h=(t,p={},...k)=>{const e=document.createElement(t);Object.assign(e,p);e.append(...k);return e};
 const toast=(m,e)=>{const t=$('toast');t.textContent=m;t.className='toast show'+(e?' error':'');setTimeout(()=>t.className='toast',2600)};
-const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const prep=a=>a.map(p=>({...p,_n:norm(p.producto)}));
 const DIAS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const fechaES=d=>`${DIAS[d.getDay()]} ${d.getDate()} de ${MES[d.getMonth()]} del ${d.getFullYear()}`;
 $('fecha').textContent=$('rf').textContent=fechaES(new Date());
@@ -104,27 +122,33 @@ async function entrar(){
 // ---- Catálogo: caché local + sincronización ----
 let cat=[],orden=[],canal=null,tmr=null;
 async function iniciar(){
- cat=(await idb.get('cat'))||[];buscar();
+ cat=prep((await idb.get('cat'))||[]);buscar();
  await sync();await cargarOrden();
  if(!canal)canal=sb.channel('caja').on('postgres_changes',{event:'*',schema:'public',table:'caja_items'},cargarOrden).subscribe();
  if(!tmr)tmr=setInterval(()=>sync(),300000)}
 async function sync(manual){
  const{data,error}=await sb.from('productos').select('id,producto,precio,pg').order('producto');
  if(error)return toast('Catálogo: '+error.message,1);
- cat=data;await idb.set('cat',data);buscar();if(manual)toast('Catálogo actualizado ('+data.length+')')}
+ cat=prep(data);await idb.set('cat',data);buscar();if(manual)toast('Catálogo actualizado ('+data.length+')')}
 $('ref').onclick=()=>sync(true);
 function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i,...Array(b.length).fill(0)]);for(let j=0;j<=b.length;j++)d[0][j]=j;
  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]:1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);return d[a.length][b.length]}
+const lq=()=>{$('q').value='';buscar()};
+function puntaje(toks,p){const w=p._n.split(' ');let s=0;
+ for(const t of toks){let m=9;for(const x of w){const e=Math.min(lev(t,x),lev(t,x.slice(0,t.length)));if(e<m)m=e}s+=m>Math.ceil(t.length/3)?9:m}return s}
 function buscar(){
- const q=norm($('q').value.trim()),l=$('lista');l.replaceChildren();if(!q)return;
- let r=cat.filter(p=>norm(p.producto).includes(q)),sug=!r.length&&cat.length;
- if(sug)r=cat.map(p=>[lev(q,norm(p.producto)),p]).sort((a,b)=>a[0]-b[0]).slice(0,3).map(x=>x[1]);
+ const toks=norm($('q').value).split(' ').filter(Boolean),l=$('lista');l.replaceChildren();if(!toks.length)return;
+ let r=cat.filter(p=>toks.every(t=>p._n.includes(t))),sug=!r.length&&cat.length>0;
+ if(sug)r=cat.map(p=>[puntaje(toks,p),p]).filter(x=>x[0]<9).sort((a,b)=>a[0]-b[0]).slice(0,5).map(x=>x[1]);
+ else r.sort((a,b)=>b._n.startsWith(toks[0])-a._n.startsWith(toks[0]));
  if(!r.length)return l.append(h('div',{className:'empty',textContent:'No se encontraron productos.'}));
  if(sug)l.append(h('div',{className:'empty',textContent:'Sin coincidencia exacta. ¿Quisiste decir…?'}));
- r.slice(0,50).forEach(p=>{const n=h('input',{type:'number',min:1,value:1,className:'n'});
+ r.slice(0,50).forEach(p=>{const n=h('input',{type:'number',min:1,value:1,className:'n',inputMode:'numeric',onfocus:e=>e.target.select()});
   l.append(h('div',{className:'it'},
    h('div',{},h('b',{textContent:p.producto}),h('div',{className:'meta',textContent:'S/ '+Number(p.precio).toFixed(2)+(p.pg?' · Pág. Kardex: '+p.pg:'')})),
-   h('div',{className:'add'},n,h('button',{textContent:'Vender',onclick:()=>ajustar(p.id,parseInt(n.value))}))))})}
+   h('div',{className:'add'},n,h('button',{textContent:'Vender',onclick:async()=>{const c=parseInt(n.value);
+    if(await ajustar(p.id,c)){toast('✓ '+c+' × '+p.producto);navigator.vibrate&&navigator.vibrate(25);lq()}}}))))})}
+$('q').onfocus=lq;   // al volver a tocar el buscador se limpia solo
 $('q').oninput=buscar;
 $('tn').onclick=()=>$('fa').hidden=!$('fa').hidden;
 $('gp').onclick=async()=>{
@@ -136,9 +160,10 @@ $('gp').onclick=async()=>{
 
 // ---- Orden del día (compartida en tiempo real) ----
 async function ajustar(id,d){
- if(!d)return toast('Cantidad inválida',1);
+ if(!d)return toast('Cantidad inválida',1),false;
  const{error}=await sb.rpc('caja_ajustar',{p_producto:id,p_delta:d});
- if(error)toast(error.message,1);else cargarOrden()}
+ if(error)return toast(error.message,1),false;
+ cargarOrden();return true}
 async function cargarOrden(){
  const{data,error}=await sb.from('caja_items').select('id,producto_id,nombre,cantidad,precio_unitario').is('cierre_id',null).order('id');
  if(error)return toast(error.message,1);orden=data;pintar()}
@@ -150,7 +175,7 @@ function pintar(){
    h('button',{className:'sm',textContent:'−',onclick:()=>ajustar(i.producto_id,-1)}),h('span',{textContent:i.cantidad}),
    h('button',{className:'sm',textContent:'+',onclick:()=>ajustar(i.producto_id,1)}),
    h('b',{textContent:'S/ '+s.toFixed(2)}),h('button',{className:'sm x',textContent:'×',title:'Quitar',onclick:()=>ajustar(i.producto_id,-i.cantidad)})))});
- $('total').textContent='S/ '+t.toFixed(2)}
+ $('total').textContent=$('total2').textContent='S/ '+t.toFixed(2)}
 
 // ---- Cierre + PDF ----
 $('pdf').onclick=async()=>{
@@ -191,6 +216,8 @@ function hacerPdf(items,f){
  d.setFont('helvetica','bold');d.setFontSize(15);d.text('TOTAL : '+(m(f.total_manual)||'____________'),cx,y+5*fa+60,{align:'center'});
  d.save('SENATI_CAJA_'+new Date().toISOString().slice(0,19).replace(/[-:T]/g,'')+'.pdf')}
 
+$('vr').onclick=()=>$('rec').scrollIntoView({behavior:'smooth'});
+document.querySelectorAll('#app input[step]').forEach(i=>i.inputMode='decimal');
 sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT')mostrar(false)});
 entrar();
 </script></body></html>
