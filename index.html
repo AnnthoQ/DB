@@ -29,10 +29,10 @@ button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stam
 .tot{display:flex;justify-content:space-between;font-weight:700;font-size:1.15rem;padding:14px 0}.tot b{color:var(--stamp)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g2 label{font-size:.7rem;color:var(--soft);display:block;margin-bottom:3px}.full{grid-column:1/-1}
 #login{max-width:340px;margin-top:10vh}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:3px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+.toast{z-index:30;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:3px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
 .toast.show{opacity:1}.toast.error{background:var(--stamp)}
 @media(max-width:860px){
- .wrap{padding:14px 12px calc(24px + env(safe-area-inset-bottom))}
+ .wrap{padding:14px 12px calc(84px + env(safe-area-inset-bottom))}
  h1{font-size:1.1rem}
  input,select{font-size:16px;min-height:46px}
  button{min-height:46px;font-size:.95rem}
@@ -41,12 +41,20 @@ button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stam
  .sm{width:38px;height:38px;min-height:38px;font-size:1.1rem}
  .ln{gap:6px;padding:9px 0}#lista{max-height:none}
  #tn,#fa{display:none}
- .c{text-align:center}
- #q{text-align:center}
- .row{max-width:520px;margin:0 auto 10px}
 }
 summary{font-weight:600;font-size:.95rem;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:32px}
 summary::-webkit-details-marker{display:none}summary::after{content:'▾';font-size:1.2rem;transition:transform .2s}details[open]>summary::after{transform:rotate(180deg)}
+#fab,#cb{display:none}
+@media(max-width:860px){
+ #fab{display:block;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));z-index:10;border-radius:999px;background:var(--stamp);border-color:var(--stamp);min-height:44px;padding:0 22px;font-size:.8rem;letter-spacing:.06em;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+ #bus{display:none;position:fixed;left:0;right:0;top:0;height:100%;z-index:20;margin:0;border:0;border-radius:0;background:var(--bg);padding:calc(12px + env(safe-area-inset-top)) 12px 12px;flex-direction:column}
+ #bus.on{display:flex}#bus h2{display:none}
+ #bus .row{margin:0 0 10px;align-items:center}
+ #bus #q{border-radius:999px;padding:0 18px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+ #cb{display:block;border-radius:999px;width:46px;padding:0}
+ #bus #lista{flex:1;overflow:auto;max-height:none}
+ .toast{bottom:calc(76px + env(safe-area-inset-bottom))}
+}
 </style></head><body>
 
 <div id="login" class="wrap"><div class="panel">
@@ -57,10 +65,11 @@ summary::-webkit-details-marker{display:none}summary::after{content:'▾';font-s
 
 <div id="app" class="wrap" hidden>
  <header><h1>Caja · Librería SENATI</h1><div><span class="sub" id="fecha"></span> <button class="sec" id="salir" style="padding:4px 8px">Salir</button></div></header>
+ <button id="fab">REGISTRAR PRODUCTO</button>
  <div class="grid">
-  <section class="panel">
-   <h2 class="c">Buscar producto</h2>
-   <div class="row"><input id="q" type="search" placeholder="Ej: impresión, espiral, A3…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></div>
+  <section class="panel" id="bus">
+   <h2>Buscar producto</h2>
+   <div class="row"><input id="q" type="search" placeholder="Ej: impresión, espiral, A3…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"><button class="sec" id="cb" title="Cerrar">✕</button></div>
    <div id="lista"></div>
    <button class="link" id="tn">+ Agregar producto nuevo</button>
    <div id="fa" hidden><div class="f3"><input id="np" placeholder="Nombre"><input id="pr" type="number" step="0.01" min="0" placeholder="Precio S/"><input id="pgn" type="number" min="0" placeholder="PG"></div><button id="gp">Guardar producto</button></div>
@@ -146,7 +155,7 @@ function buscar(){
   l.append(h('div',{className:'it'},
    h('div',{},h('b',{textContent:p.producto}),h('div',{className:'meta',textContent:'S/ '+Number(p.precio).toFixed(2)+(p.pg?' · Pág. Kardex: '+p.pg:'')})),
    h('div',{className:'add'},n,h('button',{textContent:'Vender',onclick:async()=>{const c=parseInt(n.value);
-    if(await ajustar(p.id,c)){toast('✓ '+c+' × '+p.producto);navigator.vibrate&&navigator.vibrate(25);lq()}}}))))})}
+    if(await ajustar(p.id,c)){toast('✓ '+c+' × '+p.producto);navigator.vibrate&&navigator.vibrate(25);lq();cerrarBus()}}}))))})}
 $('q').onfocus=lq;   // al volver a tocar el buscador se limpia solo
 $('q').oninput=buscar;
 $('tn').onclick=()=>$('fa').hidden=!$('fa').hidden;
@@ -217,6 +226,12 @@ function hacerPdf(items,f){
 
 document.querySelectorAll('#app input[step]').forEach(i=>i.inputMode='decimal');
 $('cierre').open=!matchMedia('(max-width:860px)').matches;
+const bus=$('bus'),vv=window.visualViewport;
+const ajVV=()=>{if(vv&&bus.classList.contains('on')){bus.style.height=vv.height+'px';bus.style.top=vv.offsetTop+'px'}};
+function abrirBus(){bus.classList.add('on');ajVV();$('q').focus()}
+function cerrarBus(){bus.classList.remove('on');$('q').blur();lq()}
+$('fab').onclick=abrirBus;$('cb').onclick=cerrarBus;
+if(vv){vv.addEventListener('resize',ajVV);vv.addEventListener('scroll',ajVV)}
 sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT')mostrar(false)});
 entrar();
 </script></body></html>
