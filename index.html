@@ -1,663 +1,250 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Libros Contables en el Perú: De la Pluma a la Nube</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Caja · SENATI</title><meta name="theme-color" content="#241F1C">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Caja SENATI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
-  :root{
-    --bg:#F8F9FA;
-    --navy:#0F2C59;
-    --navy-2:#1F4172;
-    --gold:#C9A15A;
-    --gold-soft:#E5C3A6;
-    --grey:#4F709C;
-    --ink:#1B2434;
-    --card:#FFFFFF;
-    --line:#E3E7EE;
-    --shadow: 0 10px 30px rgba(15,44,89,0.08);
-    --radius: 16px;
-    --maxw: 1120px;
-  }
-  *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--ink);
-    font-family:'Inter',sans-serif;
-    line-height:1.55;
-    -webkit-font-smoothing:antialiased;
-  }
-  h1,h2,h3,h4{font-family:'Poppins',sans-serif; margin:0; color:var(--navy);}
-  p{margin:0 0 .8em 0;}
-  a{color:var(--navy-2);}
-  img,svg{display:block;}
-  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
+:root{--paper:#F6F1E7;--bg:#EDE5D3;--ink:#241F1C;--soft:#5B5349;--line:#D9CDB5;--stamp:#A8341F}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px Inter,system-ui,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
+header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:20px;gap:8px}
+h1{font-size:1.3rem;margin:0}h2{font-size:.95rem;margin:0 0 10px}
+.sub,.meta{font:.78rem ui-monospace,monospace;color:var(--soft)}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:16px;margin-bottom:14px}
+input,select{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink);width:100%}
+input:focus,select:focus{outline:2px solid var(--stamp)}
+button{font:600 .85rem inherit;cursor:pointer;border-radius:3px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:9px 13px}
+button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stamp{background:var(--stamp);border-color:var(--stamp);width:100%}
+.row{display:flex;gap:8px;margin-bottom:10px}.row input{flex:1}.row button{width:auto}
+#lista{max-height:60vh;overflow:auto}
+.it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px dashed var(--line)}
+.add{display:flex;gap:6px;flex-shrink:0}.add .n{width:60px;text-align:center}
+.empty{color:var(--soft);font-size:.85rem;padding:8px 2px}
+.link{background:none;border:none;color:var(--soft);text-decoration:underline;padding:10px 0 0;font-weight:500}
+.f3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin:10px 0}
+.recibo{background:#FFFDF8;border:1px solid var(--line);padding:18px 14px 6px;margin-bottom:14px;font-family:ui-monospace,monospace}
+.ln{display:flex;align-items:center;gap:8px;font-size:.85rem;padding:7px 0;border-bottom:1px dashed var(--line)}.ln .d{flex:1}
+.sm{width:24px;height:24px;padding:0;background:var(--bg);color:var(--ink);border-color:var(--line)}.x{color:var(--stamp);background:none;border:none}
+.tot{display:flex;justify-content:space-between;font-weight:700;font-size:1.15rem;padding:14px 0}.tot b{color:var(--stamp)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g2 label{font-size:.7rem;color:var(--soft);display:block;margin-bottom:3px}.full{grid-column:1/-1}
+#login{max-width:340px;margin-top:10vh}
+.toast{z-index:30;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:3px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+.toast.show{opacity:1}.toast.error{background:var(--stamp)}
+@media(max-width:860px){
+ .wrap{padding:14px 12px calc(110px + env(safe-area-inset-bottom))}
+ h1{font-size:1.1rem}
+ input,select{font-size:16px;min-height:46px}
+ button{min-height:46px;font-size:.95rem}
+  .it{flex-wrap:wrap;padding:12px 2px}.it>div:first-child{flex:1 1 100%}
+ .add{width:100%}.add .n{width:76px}.add button{flex:1}
+ .sm{width:38px;height:38px;min-height:38px;font-size:1.1rem}
+ .ln{gap:6px;padding:9px 0}#lista{max-height:none}
+ #tn,#fa{display:none}
+}
+summary{font-weight:600;font-size:.95rem;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:32px}
+summary::-webkit-details-marker{display:none}summary::after{content:'▾';font-size:1.2rem;transition:transform .2s}details[open]>summary::after{transform:rotate(180deg)}
+#fab,#cb{display:none}
+@media(max-width:860px){
+ #bus{display:none;position:fixed;left:0;right:0;top:0;height:100%;z-index:20;margin:0;border:0;border-radius:0;background:var(--bg);padding:calc(12px + env(safe-area-inset-top)) 12px 12px;flex-direction:column}
+ #bus.on{display:flex}#bus h2{display:none}
+ #fab{display:block;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:10;min-height:64px;border-radius:999px;background:var(--stamp);border-color:var(--stamp);font-size:1.05rem;letter-spacing:.08em;box-shadow:0 8px 22px rgba(0,0,0,.3)}
+ #bus .row{margin:0 0 6px}
+ #bus #q{border:0;background:transparent;box-shadow:none;outline:none;border-radius:0;font-size:32px;font-weight:600;text-align:center;min-height:64px;padding:4px 0;caret-color:var(--stamp)}
+ #q::-webkit-search-cancel-button{display:none;-webkit-appearance:none}
+ #q::placeholder{color:var(--soft);opacity:.4}
+ .toast{bottom:calc(92px + env(safe-area-inset-bottom))}
+ #bus #lista{flex:1;overflow:auto;max-height:none}
+}
+</style></head><body>
 
-  /* progress bar */
-  #progress{position:fixed; top:0; left:0; height:4px; background:linear-gradient(90deg,var(--navy),var(--gold)); width:0%; z-index:999; transition:width .1s linear;}
+<div id="login" class="wrap"><div class="panel">
+ <h1 style="margin-bottom:14px">Caja · SENATI</h1>
+ <form id="lg"><label class="meta">Código</label><input id="cod" autocomplete="username" required style="margin-bottom:10px">
+ <label class="meta">Contraseña</label><input id="pw" type="password" autocomplete="current-password" required style="margin-bottom:14px">
+ <button class="stamp">Ingresar</button></form></div></div>
 
-  /* header */
-  header.hero{
-    background: linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 60%, #16386b 100%);
-    color:#fff;
-    padding:64px 0 80px;
-    position:relative;
-    overflow:hidden;
-  }
-  header.hero::before{
-    content:"";
-    position:absolute; right:-120px; top:-120px; width:420px; height:420px;
-    background: radial-gradient(circle, rgba(201,161,90,0.25), transparent 70%);
-  }
-  header.hero .eyebrow{
-    display:inline-block; font-size:.85rem; color:var(--gold-soft); font-weight:600; margin-bottom:14px;
-    letter-spacing:.02em;
-  }
-  header.hero h1{color:#fff; font-size:clamp(2rem, 4.2vw, 3.1rem); font-weight:800; max-width:760px; line-height:1.12;}
-  header.hero .sub{color:#CFE0FF; font-size:1.15rem; margin-top:14px; max-width:640px; font-weight:400;}
-
-  /* nav tabs */
-  nav.tabs{
-    position:sticky; top:0; z-index:50;
-    background:rgba(248,249,250,0.92); backdrop-filter:blur(8px);
-    border-bottom:1px solid var(--line);
-  }
-  nav.tabs .wrap{display:flex; gap:8px; padding:10px 24px; overflow-x:auto;}
-  nav.tabs button{
-    border:none; background:transparent; padding:10px 18px; border-radius:999px;
-    font-family:'Inter',sans-serif; font-weight:600; font-size:.95rem; color:var(--grey);
-    cursor:pointer; white-space:nowrap; transition:background .2s, color .2s;
-  }
-  nav.tabs button.active{background:var(--navy); color:#fff;}
-  nav.tabs button:hover:not(.active){background:#EDEFF3;}
-
-  main{padding:56px 0 40px;}
-  .page{display:none;}
-  .page.active{display:block; animation:fade .35s ease;}
-  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
-
-  section{margin-bottom:64px;}
-  section > .label{
-    font-size:.82rem; font-weight:700; color:var(--gold); background:rgba(201,161,90,.12);
-    display:inline-block; padding:4px 12px; border-radius:8px; margin-bottom:10px;
-  }
-  section h2{font-size:clamp(1.4rem,2.6vw,1.9rem); margin-bottom:6px;}
-  section .lede{color:var(--grey); max-width:680px; margin-bottom:28px; font-size:1.02rem;}
-
-  /* cards grid */
-  .grid{display:grid; gap:18px;}
-  .grid-4{grid-template-columns:repeat(4,1fr);}
-  .grid-3{grid-template-columns:repeat(3,1fr);}
-  .grid-2{grid-template-columns:repeat(2,1fr);}
-  @media(max-width:900px){.grid-4{grid-template-columns:repeat(2,1fr);} .grid-3{grid-template-columns:repeat(2,1fr);}}
-  @media(max-width:620px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr;}}
-
-  .card{
-    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
-    padding:22px; box-shadow:var(--shadow); cursor:default;
-    transition:transform .18s ease, box-shadow .18s ease;
-  }
-  .card.clickable{cursor:pointer;}
-  .card.clickable:hover{transform:translateY(-4px); box-shadow:0 16px 34px rgba(15,44,89,0.14);}
-  .card .ic{
-    width:44px; height:44px; border-radius:12px; background:var(--navy); color:#fff;
-    display:flex; align-items:center; justify-content:center; margin-bottom:14px;
-  }
-  .card h3{font-size:1.05rem; margin-bottom:6px;}
-  .card p{color:var(--grey); font-size:.93rem; margin-bottom:0;}
-
-  /* flip definition cards */
-  .flip{perspective:1200px; height:190px;}
-  .flip-inner{position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d;}
-  .flip.open .flip-inner{transform:rotateY(180deg);}
-  .flip-face{position:absolute; inset:0; backface-visibility:hidden; border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); display:flex; flex-direction:column; justify-content:center;}
-  .flip-front{background:var(--card); border:1px solid var(--line);}
-  .flip-back{background:var(--navy); color:#fff; transform:rotateY(180deg); font-size:.9rem;}
-  .flip-front .tap{font-size:.78rem; color:var(--gold); margin-top:8px; font-weight:600;}
-
-  /* estructura diagram */
-  .diagram{display:flex; flex-direction:column; gap:10px; margin-bottom:8px;}
-  .diagram .seg{
-    background:var(--card); border:1px solid var(--line); border-left:6px solid var(--navy-2);
-    border-radius:12px; padding:14px 18px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;
-    transition:background .15s;
-  }
-  .diagram .seg:hover{background:#EEF2F8;}
-  .diagram .seg strong{color:var(--navy); font-family:'Poppins',sans-serif; font-weight:600; font-size:.98rem;}
-  .diagram .seg span.chev{color:var(--gold); font-size:1.1rem;}
-  .diagram .detail{
-    display:none; background:#F1F4F9; border-radius:12px; padding:14px 18px; font-size:.92rem; color:var(--ink); margin-top:-4px; border-left:6px solid var(--gold);
-  }
-  .diagram .detail.show{display:block;}
-
-  /* operaciones tags */
-  .tagcloud{display:flex; flex-wrap:wrap; gap:10px;}
-  .tag{
-    background:#EEF2F8; border:1px solid var(--line); padding:8px 14px; border-radius:999px; font-size:.86rem; color:var(--navy-2); font-weight:500;
-  }
-
-  /* timeline */
-  .timeline{position:relative; margin-top:20px;}
-  .timeline .track{position:absolute; left:24px; top:0; bottom:0; width:3px; background:var(--line);}
-  .timeline .track .fill{position:absolute; left:0; top:0; width:100%; background:linear-gradient(var(--navy),var(--gold)); height:0%; transition:height .3s;}
-  .tl-item{position:relative; padding-left:64px; margin-bottom:26px; cursor:pointer;}
-  .tl-dot{
-    position:absolute; left:12px; top:2px; width:26px; height:26px; border-radius:50%;
-    background:#fff; border:3px solid var(--navy-2); display:flex; align-items:center; justify-content:center;
-    font-size:.75rem; font-weight:700; color:var(--navy-2); transition:all .2s; z-index:2;
-  }
-  .tl-item.done .tl-dot{background:var(--navy); border-color:var(--navy); color:#fff;}
-  .tl-item h4{margin-bottom:4px; font-size:1.05rem;}
-  .tl-item p.hint{color:var(--grey); font-size:.9rem; margin:0;}
-
-  /* alert */
-  .alert{
-    background:linear-gradient(135deg, rgba(201,161,90,.16), rgba(201,161,90,.06));
-    border:1px solid var(--gold-soft); border-radius:var(--radius); padding:20px 22px; display:flex; gap:16px; align-items:flex-start;
-  }
-  .alert .ic{flex:none; width:38px; height:38px; border-radius:10px; background:var(--gold); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;}
-  .alert h4{margin-bottom:4px; color:var(--navy); font-size:1rem;}
-  .alert p{color:#5a4a2f; font-size:.92rem; margin:0;}
-
-  /* regime selector cards */
-  .regime-tabs{display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;}
-  .regime-tabs button{
-    border:1px solid var(--line); background:#fff; padding:10px 18px; border-radius:12px; font-weight:600; font-size:.92rem; color:var(--navy);
-    cursor:pointer; transition:all .18s;
-  }
-  .regime-tabs button.active{background:var(--navy); color:#fff; border-color:var(--navy);}
-  .regime-panel{display:none;}
-  .regime-panel.active{display:block; animation:fade .3s ease;}
-  table{width:100%; border-collapse:collapse; margin-top:10px;}
-  table th, table td{text-align:left; padding:12px 14px; border-bottom:1px solid var(--line); font-size:.92rem;}
-  table th{color:var(--navy); font-family:'Poppins',sans-serif; font-size:.85rem; background:#F1F4F9;}
-  table tr.hi td{background:rgba(201,161,90,.10); font-weight:600;}
-
-  /* calculator tool */
-  .tool{
-    background:var(--navy); color:#fff; border-radius:20px; padding:30px; display:grid; grid-template-columns:1fr 1fr; gap:26px;
-  }
-  @media(max-width:800px){.tool{grid-template-columns:1fr;}}
-  .tool h3{color:#fff; font-size:1.2rem; margin-bottom:6px;}
-  .tool p.desc{color:#CFE0FF; font-size:.92rem; margin-bottom:18px;}
-  .tool label{display:block; font-size:.85rem; color:var(--gold-soft); font-weight:600; margin-bottom:6px; margin-top:14px;}
-  .tool select, .tool input[type=number]{
-    width:100%; padding:11px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.08); color:#fff; font-size:.95rem; font-family:'Inter',sans-serif;
-  }
-  .tool select option{color:#111;}
-  .result-box{background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); border-radius:14px; padding:20px; min-height:220px;}
-  .result-box .placeholder{color:#93A9CE; font-size:.9rem;}
-  .result-box ul{margin:10px 0 0 0; padding-left:18px;}
-  .result-box li{margin-bottom:6px; font-size:.93rem;}
-  .result-box .tag-mini{display:inline-block; background:var(--gold); color:#25200f; font-weight:700; font-size:.78rem; padding:2px 10px; border-radius:999px; margin-bottom:10px;}
-
-  /* comparison matrix */
-  .filter-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
-  .filter-row button{
-    border:1px solid var(--line); background:#fff; padding:8px 14px; border-radius:999px; font-size:.85rem; font-weight:600; color:var(--grey); cursor:pointer;
-  }
-  .filter-row button.active{background:var(--gold); color:#fff; border-color:var(--gold);}
-  .matrix-row{
-    display:grid; grid-template-columns:180px 1fr 1.4fr; gap:16px; padding:16px; border-bottom:1px solid var(--line); align-items:start;
-    transition:opacity .2s;
-  }
-  .matrix-row:first-child{border-top:1px solid var(--line);}
-  .matrix-row .cat{font-family:'Poppins',sans-serif; font-weight:600; color:var(--navy); font-size:.92rem;}
-  .matrix-row .badge{display:inline-block; font-size:.7rem; font-weight:700; color:#fff; background:var(--navy-2); padding:2px 8px; border-radius:6px; margin-bottom:6px;}
-  .matrix-row .ex{color:var(--grey); font-size:.88rem;}
-  .matrix-row.hidden{display:none;}
-
-  /* accordion fichas */
-  .fichas{display:flex; flex-direction:column; gap:10px;}
-  .ficha{border:1px solid var(--line); border-radius:14px; background:#fff; overflow:hidden;}
-  .ficha .fq{
-    display:flex; justify-content:space-between; align-items:center; padding:16px 20px; cursor:pointer; font-weight:600; color:var(--navy); font-family:'Poppins',sans-serif; font-size:.98rem;
-  }
-  .ficha .fq .plus{font-size:1.3rem; color:var(--gold); transition:transform .2s;}
-  .ficha.open .fq .plus{transform:rotate(45deg);}
-  .ficha .fa{max-height:0; overflow:hidden; transition:max-height .3s ease; padding:0 20px;}
-  .ficha.open .fa{max-height:340px; padding:0 20px 18px;}
-  .ficha .fa p{color:var(--grey); font-size:.92rem;}
-  .ficha .fa ul{margin:8px 0; padding-left:18px; color:var(--grey); font-size:.9rem;}
-
-  /* search */
-  .search-box{position:relative; margin-bottom:18px; max-width:420px;}
-  .search-box input{
-    width:100%; padding:12px 16px 12px 40px; border-radius:12px; border:1px solid var(--line); font-size:.94rem; font-family:'Inter',sans-serif;
-  }
-  .search-box::before{content:"🔍"; position:absolute; left:14px; top:11px; font-size:.9rem;}
-
-  /* modal */
-  .modal-bg{
-    position:fixed; inset:0; background:rgba(15,20,35,0.55); display:none; align-items:center; justify-content:center;
-    z-index:200; padding:20px;
-  }
-  .modal-bg.show{display:flex;}
-  .modal{
-    background:#fff; border-radius:18px; max-width:520px; width:100%; padding:28px; position:relative;
-    box-shadow:0 30px 60px rgba(0,0,0,.3); max-height:85vh; overflow-y:auto;
-  }
-  .modal .close{position:absolute; right:16px; top:14px; background:#F1F4F9; border:none; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:1rem; color:var(--grey);}
-  .modal h3{color:var(--navy); margin-bottom:10px; font-size:1.2rem;}
-  .modal .tag-mini{display:inline-block; background:rgba(201,161,90,.15); color:#8a6a2c; font-weight:700; font-size:.75rem; padding:3px 10px; border-radius:999px; margin-bottom:10px;}
-  .modal p{color:var(--ink); font-size:.94rem;}
-  .modal ul{padding-left:18px; color:var(--ink); font-size:.9rem;}
-
-  footer{background:#0C2249; color:#B9C8E6; padding:40px 0 30px; font-size:.86rem;}
-  footer .wrap{display:flex; flex-direction:column; gap:16px;}
-  footer .links{display:flex; flex-wrap:wrap; gap:8px 20px;}
-  footer a{color:#DCE8FF; text-decoration:none;}
-  footer a:hover{text-decoration:underline;}
-  footer .fine{color:#7C8FB5; font-size:.78rem; padding-top:14px; border-top:1px solid rgba(255,255,255,.08);}
-
-  @media(prefers-reduced-motion:reduce){
-    *{transition:none !important; animation:none !important;}
-  }
-</style>
-</head>
-<body>
-
-<div id="progress"></div>
-
-<header class="hero">
-  <div class="wrap">
-    <span class="eyebrow">Infografía interactiva · Sistema contable peruano</span>
-    <h1>Libros Contables en el Perú: De la Pluma a la Nube</h1>
-    <p class="sub">Marco contable, estructura y evolución digital — del libro empastado al Sistema Integrado de Registros Electrónicos (SIRE).</p>
-  </div>
-</header>
-
-<nav class="tabs">
-  <div class="wrap">
-    <button class="tab-btn active" data-page="p1">Página 1 · Conceptos y Evolución</button>
-    <button class="tab-btn" data-page="p2">Página 2 · Normativa y Clasificación</button>
-  </div>
-</nav>
-
-<main class="wrap">
-
-  <!-- ================= PÁGINA 1 ================= -->
-  <div class="page active" id="p1">
-
-    <section>
-      <span class="label">01 · Definición e importancia</span>
-      <h2>Tres términos que suelen confundirse</h2>
-      <p class="lede">Toca cada tarjeta para ver la definición técnica. En el Perú, una misma denominación puede cumplir a la vez una función contable y tributaria.</p>
-      <div class="grid grid-3" id="flipGrid">
-        <div class="flip" data-i="0"><div class="flip-inner">
-          <div class="flip-face flip-front"><h3>Libro contable</h3><p>Documento que organiza información financiera.</p><span class="tap">Toca para ver más ↺</span></div>
-          <div class="flip-face flip-back">Organiza información financiera para elaborar los estados financieros: situación financiera, resultados, cambios en el patrimonio y flujos de efectivo.</div>
-        </div></div>
-        <div class="flip" data-i="1"><div class="flip-inner">
-          <div class="flip-face flip-front"><h3>Registro tributario</h3><p>Exigido para sustentar obligaciones fiscales.</p><span class="tap">Toca para ver más ↺</span></div>
-          <div class="flip-face flip-back">Documento exigido principalmente para determinar, sustentar o controlar obligaciones tributarias, como el Registro de Compras o de Ventas.</div>
-        </div></div>
-        <div class="flip" data-i="2"><div class="flip-inner">
-          <div class="flip-face flip-front"><h3>Libro societario</h3><p>Acredita actos y acuerdos corporativos.</p><span class="tap">Toca para ver más ↺</span></div>
-          <div class="flip-face flip-back">Acredita actos y acuerdos corporativos de una sociedad: actas de junta, matrícula de acciones o registro de participación (Ley N.° 26887).</div>
-        </div></div>
-      </div>
-    </section>
-
-    <section>
-      <span class="label">Funciones clave</span>
-      <h2>¿Para qué sirven los libros contables?</h2>
-      <p class="lede">Toca una tarjeta para abrir el detalle en una ventana modal.</p>
-      <div class="grid grid-4" id="funcGrid">
-        <div class="card clickable" data-modal="f0"><div class="ic">◆</div><h3>Toma de decisiones</h3><p>Evalúan rentabilidad, liquidez y capacidad de pago.</p></div>
-        <div class="card clickable" data-modal="f1"><div class="ic">%</div><h3>Determinación tributaria</h3><p>Calculan el IGV, el Impuesto a la Renta y otras obligaciones.</p></div>
-        <div class="card clickable" data-modal="f2"><div class="ic">✓</div><h3>Control interno</h3><p>Detectan errores, omisiones y operaciones inusuales.</p></div>
-        <div class="card clickable" data-modal="f3"><div class="ic">§</div><h3>Sustento legal</h3><p>Respaldan operaciones ante SUNAT, auditores y socios.</p></div>
-      </div>
-    </section>
-
-    <section>
-      <span class="label">02 · Estructura</span>
-      <h2>Partes de un libro contable</h2>
-      <p class="lede">Haz clic en cada parte del esquema para desplegar su contenido.</p>
-      <div class="diagram" id="diagram">
-        <div class="seg" data-d="d0"><strong>Encabezado o cabecera</strong><span class="chev">＋</span></div>
-        <div class="detail" id="d0">Denominación del libro, razón social o nombre del contribuyente, RUC, periodo, ejercicio y moneda.</div>
-        <div class="seg" data-d="d1"><strong>Rayado contable</strong><span class="chev">＋</span></div>
-        <div class="detail" id="d1">Columnas y campos para fecha, número de asiento, cuenta, glosa, debe, haber, base imponible, impuesto y total.</div>
-        <div class="seg" data-d="d2"><strong>Cuerpo o folios</strong><span class="chev">＋</span></div>
-        <div class="detail" id="d2">Registro detallado y cronológico de las operaciones. En libros electrónicos: archivos, estructuras de datos, códigos de validación y constancias.</div>
-        <div class="seg" data-d="d3"><strong>Totales</strong><span class="chev">＋</span></div>
-        <div class="detail" id="d3">Sumatorias por periodo, cuenta, folio o naturaleza de la operación.</div>
-        <div class="seg" data-d="d4"><strong>Saldos</strong><span class="chev">＋</span></div>
-        <div class="detail" id="d4">Diferencia entre débitos y créditos, o importes pendientes de cobro, pago, depreciación o inventario.</div>
-        <div class="seg" data-d="d5"><strong>Cierre / constancia digital</strong><span class="chev">＋</span></div>
-        <div class="detail" id="d5">Totalización, conciliación, asiento de cierre o generación de constancia electrónica, según el libro.</div>
-      </div>
-
-      <h3 style="margin-top:34px; font-size:1.05rem;">Operaciones que se registran</h3>
-      <div class="tagcloud" style="margin-top:14px;">
-        <span class="tag">Compras</span><span class="tag">Ventas</span><span class="tag">Planillas</span>
-        <span class="tag">Activos fijos</span><span class="tag">Provisiones</span><span class="tag">Inventarios</span>
-        <span class="tag">Devengo de ingresos y gastos</span><span class="tag">Diferencias de cambio</span>
-        <span class="tag">Arrendamientos</span><span class="tag">Capitalizaciones y dividendos</span>
-        <span class="tag">Ajustes y cierre</span><span class="tag">Exportaciones e importaciones</span>
-      </div>
-    </section>
-
-    <section>
-      <span class="label">03 · Evolución histórica</span>
-      <h2>De la pluma a la nube</h2>
-      <p class="lede">Haz clic en cada hito para conocer sus características. La barra lateral se completa a medida que avanzas.</p>
-      <div class="timeline">
-        <div class="track"><div class="fill" id="tlFill"></div></div>
-        <div class="tl-item" data-tl="t0"><div class="tl-dot">1</div><h4>Etapa manual</h4><p class="hint">Libros empastados, foliados y legalizados</p></div>
-        <div class="tl-item" data-tl="t1"><div class="tl-dot">2</div><h4>Etapa mecanizada</h4><p class="hint">Hojas sueltas y sistemas computarizados</p></div>
-        <div class="tl-item" data-tl="t2"><div class="tl-dot">3</div><h4>Etapa electrónica</h4><p class="hint">SLE-PLE, SLE-Portal y SIRE (RVIE / RCE)</p></div>
-      </div>
-    </section>
-
-  </div>
-
-  <!-- ================= PÁGINA 2 ================= -->
-  <div class="page" id="p2">
-
-    <section>
-      <span class="label">04 · Normativa vigente</span>
-      <h2>Obligatoriedad por régimen tributario</h2>
-      <p class="lede">Selecciona un régimen para ver los libros y registros mínimos exigidos.</p>
-
-      <div class="regime-tabs">
-        <button class="rg-btn active" data-rg="rer">RER</button>
-        <button class="rg-btn" data-rg="rmt">MYPE Tributario</button>
-        <button class="rg-btn" data-rg="rg">Régimen General</button>
-      </div>
-
-      <div class="regime-panel active" id="rg-rer">
-        <div class="grid grid-2">
-          <div class="card"><h3>Registro de Ventas e Ingresos</h3><p>Obligatorio para todo contribuyente del RER.</p></div>
-          <div class="card"><h3>Registro de Compras</h3><p>Cuando corresponda por operaciones gravadas con IGV.</p></div>
-        </div>
-        <p style="margin-top:14px; color:var(--grey); font-size:.9rem;">Pueden exigirse registros adicionales según el tipo de actividad, como consignaciones o planillas.</p>
-      </div>
-
-      <div class="regime-panel" id="rg-rmt">
-        <table>
-          <tr><th>Ingresos netos anuales</th><th>Libros y registros mínimos</th></tr>
-          <tr><td>Hasta 300 UIT</td><td>Registro de Ventas, Registro de Compras y Libro Diario de Formato Simplificado.</td></tr>
-          <tr><td>Más de 300 UIT</td><td>Libros y registros conforme al artículo 65 de la Ley del Impuesto a la Renta.</td></tr>
-        </table>
-      </div>
-
-      <div class="regime-panel" id="rg-rg">
-        <table>
-          <tr><th>Ingresos brutos anuales</th><th>Libros principales exigidos</th></tr>
-          <tr><td>Hasta 300 UIT</td><td>Registro de Compras, Registro de Ventas y Libro Diario de Formato Simplificado.</td></tr>
-          <tr><td>Más de 300 hasta 500 UIT</td><td>Registro de Compras, Registro de Ventas, Libro Diario y Libro Mayor.</td></tr>
-          <tr><td>Más de 500 hasta 1,700 UIT</td><td>Registro de Compras, Registro de Ventas, Libro Diario, Libro Mayor y Libro de Inventarios y Balances.</td></tr>
-          <tr class="hi"><td>Más de 1,700 UIT</td><td>Contabilidad completa, además de los registros específicos que correspondan.</td></tr>
-        </table>
-      </div>
-
-      <div class="alert" style="margin-top:24px;">
-        <div class="ic">!</div>
-        <div>
-          <h4>Situación del SIRE al cierre de 2025</h4>
-          <p>La R.S. N.° 392-2025/SUNAT postergó la incorporación al SIRE de determinados principales contribuyentes con ingresos netos 2024 superiores a 2,300 UIT hasta el periodo junio de 2026; los demás designados inician en enero de 2026. La incorporación es gradual, no simultánea para todos los contribuyentes.</p>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <span class="label">Herramienta interactiva</span>
-      <h2>¿Qué libros me corresponden?</h2>
-      <p class="lede">Elige tu régimen y tu nivel de ingresos para obtener una orientación referencial.</p>
-      <div class="tool">
-        <div>
-          <h3>Calculadora referencial de libros</h3>
-          <p class="desc">Resultado orientativo según SUNAT. No reemplaza el análisis de un contador conforme a tu actividad y condición específica.</p>
-          <label for="calcRegime">Régimen tributario</label>
-          <select id="calcRegime">
-            <option value="rer">Régimen Especial (RER)</option>
-            <option value="rmt">MYPE Tributario (RMT)</option>
-            <option value="rg" selected>Régimen General</option>
-          </select>
-          <label for="calcUit">Ingresos del ejercicio (en UIT)</label>
-          <input type="number" id="calcUit" placeholder="Ej. 420" min="0">
-        </div>
-        <div class="result-box" id="calcResult">
-          <p class="placeholder">Completa los campos para ver los libros que te corresponderían.</p>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <span class="label">05 · Clasificación</span>
-      <h2>Cuadro comparativo</h2>
-      <p class="lede">Filtra por categoría para comparar finalidad, ejemplos y fuente normativa.</p>
-      <div class="filter-row" id="matrixFilter">
-        <button class="active" data-cat="all">Todas</button>
-        <button data-cat="societario">Societarios</button>
-        <button data-cat="contable">Contables</button>
-        <button data-cat="tributario">Tributarios</button>
-        <button data-cat="obligatorio">Obligatorios</button>
-        <button data-cat="auxiliar">Auxiliares voluntarios</button>
-      </div>
-      <div id="matrixList">
-        <div class="matrix-row" data-cat="societario">
-          <div><span class="badge">Societario</span><div class="cat">Libros societarios</div></div>
-          <div class="ex">Evidenciar acuerdos, titularidad y actos corporativos.<br><small>Ley General de Sociedades, Ley N.° 26887.</small></div>
-          <div class="ex">Libro de Actas, Matrícula de Acciones, Registro de Acciones.</div>
-        </div>
-        <div class="matrix-row" data-cat="contable">
-          <div><span class="badge" style="background:var(--navy-2)">Contable</span><div class="cat">Libros contables o comerciales</div></div>
-          <div class="ex">Acumular y clasificar operaciones para preparar información financiera.<br><small>PCGE, NIIF y legislación empresarial.</small></div>
-          <div class="ex">Diario, Mayor, Inventarios y Balances.</div>
-        </div>
-        <div class="matrix-row" data-cat="tributario">
-          <div><span class="badge" style="background:var(--gold)">Tributario</span><div class="cat">Libros tributarios</div></div>
-          <div class="ex">Sustentar obligaciones tributarias, crédito fiscal, renta y operaciones gravadas.<br><small>Código Tributario, LIR, Ley del IGV.</small></div>
-          <div class="ex">Registro de Compras, Registro de Ventas e Ingresos.</div>
-        </div>
-        <div class="matrix-row" data-cat="obligatorio">
-          <div><span class="badge">Obligatorio</span><div class="cat">Libros obligatorios</div></div>
-          <div class="ex">Exigidos por ley, régimen, ingresos, actividad o condición del contribuyente.<br><small>Normativa aplicable a cada caso.</small></div>
-          <div class="ex">Diario, Registro de Compras, Registro de Ventas, según corresponda.</div>
-        </div>
-        <div class="matrix-row" data-cat="auxiliar">
-          <div><span class="badge" style="background:var(--grey)">Auxiliar</span><div class="cat">Auxiliares voluntarios</div></div>
-          <div class="ex">Facilitar control y análisis interno, aunque no siempre sean exigidos formalmente.<br><small>Políticas contables y necesidades de gestión.</small></div>
-          <div class="ex">Caja/Bancos, cuentas por cobrar, cuentas por pagar, activos fijos.</div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <span class="label">06 · Fichas técnicas</span>
-      <h2>Libros principales y auxiliares</h2>
-      <div class="search-box"><input type="text" id="fichaSearch" placeholder="Buscar un libro o registro..."></div>
-      <div class="fichas" id="fichaList">
-        <div class="ficha"><div class="fq"><span>Libro Diario</span><span class="plus">+</span></div>
-          <div class="fa"><p>Registra cronológicamente las operaciones mediante asientos contables: fecha, glosa, cuentas, debe, haber y documento sustentatorio.</p></div></div>
-        <div class="ficha"><div class="fq"><span>Libro Diario de Formato Simplificado</span><span class="plus">+</span></div>
-          <div class="fa"><p>Versión resumida para contribuyentes dentro de determinados límites de ingresos. Agrupa información mensual con menor nivel de detalle, sin eliminar el sustento de las operaciones.</p></div></div>
-        <div class="ficha"><div class="fq"><span>Libro Mayor</span><span class="plus">+</span></div>
-          <div class="fa"><p>Clasifica los movimientos por cuenta contable. Mientras el Diario responde "¿qué ocurrió y cuándo?", el Mayor responde "¿cómo se movió cada cuenta?".</p></div></div>
-        <div class="ficha"><div class="fq"><span>Libro de Inventarios y Balances</span><span class="plus">+</span></div>
-          <div class="fa"><p>Refleja la composición patrimonial al inicio y cierre del ejercicio.</p><ul><li>Inventario de activos y pasivos</li><li>Patrimonio y existencias</li><li>Balance de comprobación</li></ul></div></div>
-        <div class="ficha"><div class="fq"><span>Registro de Compras (RCE)</span><span class="plus">+</span></div>
-          <div class="fa"><p>Sustenta el crédito fiscal del IGV, controla compras y servicios, y concilia comprobantes con el SIRE. En el SIRE se denomina Registro de Compras Electrónico.</p></div></div>
-        <div class="ficha"><div class="fq"><span>Registro de Ventas e Ingresos (RVIE)</span><span class="plus">+</span></div>
-          <div class="fa"><p>Determina el débito fiscal del IGV, controla ingresos y sustenta declaraciones mensuales. En el SIRE se denomina Registro de Ventas e Ingresos Electrónico.</p></div></div>
-        <div class="ficha"><div class="fq"><span>Libro Caja y Bancos</span><span class="plus">+</span></div>
-          <div class="fa"><p>Registra cobros, pagos, depósitos, retiros, transferencias, comisiones e intereses. Fundamental para la conciliación bancaria.</p></div></div>
-      </div>
-    </section>
-
-  </div>
-</main>
-
-<footer>
-  <div class="wrap">
-    <div class="links">
-      <a href="https://www.sunat.gob.pe/legislacion/superin/2009/rs286.doc" target="_blank">R.S. 286-2009/SUNAT</a>
-      <a href="https://www.sunat.gob.pe/legislacion/superin/2021/112-2021.pdf" target="_blank">R.S. 112-2021/SUNAT</a>
-      <a href="https://www.sunat.gob.pe/legislacion/superin/2025/000257-2025.pdf" target="_blank">R.S. 257-2025/SUNAT</a>
-      <a href="https://www.sunat.gob.pe/legislacion/superin/2025/000392-2025.pdf" target="_blank">R.S. 392-2025/SUNAT</a>
-      <a href="https://www.mef.gob.pe/contenidos/conta_publ/pcge/PCGE_2019.pdf" target="_blank">PCGE 2019 — MEF</a>
-      <a href="https://leyes.congreso.gob.pe/Documentos/Leyes/26887.pdf" target="_blank">Ley N.° 26887</a>
-    </div>
-    <div class="fine">Contenido elaborado con fines académicos, con base en normativa vigente al 31 de diciembre de 2025. La obligación concreta depende del régimen tributario, nivel de ingresos, actividad y designación efectuada por SUNAT.</div>
-  </div>
-</footer>
-
-<div class="modal-bg" id="modalBg">
-  <div class="modal" id="modalBox"></div>
+<div id="app" class="wrap" hidden>
+ <header><h1>Caja · Librería SENATI</h1><div><span class="sub" id="fecha"></span> <button class="sec" id="salir" style="padding:4px 8px">Salir</button></div></header>
+ <button id="fab">REGISTRAR PRODUCTO</button>
+ <div class="grid">
+  <section class="panel" id="bus">
+   <h2>Buscar producto</h2>
+   <div class="row"><input id="q" type="search" placeholder="Ej: impresión, espiral, A3…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></div>
+   <div id="lista"></div>
+   <button class="link" id="tn">+ Agregar producto nuevo</button>
+   <div id="fa" hidden><div class="f3"><input id="np" placeholder="Nombre"><input id="pr" type="number" step="0.01" min="0" placeholder="Precio S/"><input id="pgn" type="number" min="0" placeholder="PG"></div><button id="gp">Guardar producto</button></div>
+  </section>
+  <section>
+   <div class="recibo" id="rec"><div style="text-align:center;margin-bottom:8px" class="meta" id="rf"></div>
+    <div id="lineas"></div><div class="tot"><span>TOTAL</span><b id="total">S/ 0.00</b></div></div>
+   <details class="panel" id="cierre"><summary>Cerrar caja</summary><div class="g2" style="margin-top:12px">
+    <div><label>Turno</label><select id="turno"><option>Mañana</option><option>Tarde</option></select></div>
+    <div><label>Operador (opcional)</label><input id="op"></div>
+    <div class="full meta">Librería se calcula sola. Lo demás lo ingresas tú:</div>
+    <div><label>Color S/</label><input id="c" type="number" step="0.01" min="0"></div>
+    <div><label>A3 S/</label><input id="a3" type="number" step="0.01" min="0"></div>
+    <div><label>Scan S/</label><input id="sc" type="number" step="0.01" min="0"></div>
+    <div><label>Espiral S/</label><input id="es" type="number" step="0.01" min="0"></div>
+    <div><label>Impresión S/</label><input id="im" type="number" step="0.01" min="0"></div>
+    <div><label>Yape/Plin S/</label><input id="yp" type="number" step="0.01" min="0"></div>
+    <div><label>N° operación</label><input id="nop"></div>
+    <div><label>Total S/ (efectivo real)</label><input id="tt" type="number" step="0.01" min="0"></div>
+    <div class="full"><button class="stamp" id="pdf">Generar PDF y cerrar caja</button></div>
+   </div></details>
+  </section>
+ </div>
 </div>
+<div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-// ---------- scroll progress ----------
-window.addEventListener('scroll', () => {
-  const h = document.documentElement;
-  const pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
-  document.getElementById('progress').style.width = pct + '%';
-});
+const SB='https://pvgdkcadqakfercyguhd.supabase.co',
+KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2Z2RrY2FkcWFrZmVyY3lndWhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjI4OTEsImV4cCI6MjA4ODg5ODg5MX0.6K3ei27nBJ6jVwSWskrnpYlTUAs4i3nPbbwTm1eGB9M';
+const sb=supabase.createClient(SB,KEY),$=i=>document.getElementById(i);
+const h=(t,p={},...k)=>{const e=document.createElement(t);Object.assign(e,p);e.append(...k);return e};
+const toast=(m,e)=>{const t=$('toast');t.textContent=m;t.className='toast show'+(e?' error':'');setTimeout(()=>t.className='toast',2600)};
+const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const prep=a=>a.map(p=>({...p,_n:norm(p.producto)}));
+const DIAS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const fechaES=d=>`${DIAS[d.getDay()]} ${d.getDate()} de ${MES[d.getMonth()]} del ${d.getFullYear()}`;
+$('fecha').textContent=$('rf').textContent=fechaES(new Date());
 
-// ---------- tabs ----------
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById(btn.dataset.page).classList.add('active');
-    window.scrollTo({top:0, behavior:'smooth'});
-  });
-});
+// ---- IndexedDB (caché del catálogo) ----
+const idb=(()=>{const p=new Promise(r=>{try{const o=indexedDB.open('caja',1);o.onupgradeneeded=()=>o.result.createObjectStore('k');o.onsuccess=()=>r(o.result);o.onerror=()=>r(null)}catch(e){r(null)}});
+ const tx=async(m,f)=>{const db=await p;if(!db)return null;return new Promise(r=>{const q=f(db.transaction('k',m).objectStore('k'));q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)})};
+ return{get:k=>tx('readonly',s=>s.get(k)),set:(k,v)=>tx('readwrite',s=>s.put(v,k))}})();
 
-// ---------- flip cards ----------
-document.querySelectorAll('.flip').forEach(f => {
-  f.addEventListener('click', () => f.classList.toggle('open'));
-});
+// ---- Auth ----
+const mostrar=b=>{$('login').hidden=b;$('app').hidden=!b};
+$('lg').onsubmit=async e=>{e.preventDefault();
+ const{error}=await sb.auth.signInWithPassword({email:$('cod').value.trim()+'@inv.local',password:$('pw').value});
+ if(error)return toast('Código o contraseña incorrectos',1);$('pw').value='';entrar()};
+$('salir').onclick=async()=>{await idb.set('cat',null);if(canal){sb.removeChannel(canal);canal=null}await sb.auth.signOut();cat=[];orden=[];mostrar(false)};
+async function entrar(){
+ const{data:{session}}=await sb.auth.getSession();if(!session)return mostrar(false);
+ const{data:ok}=await sb.rpc('es_operador');
+ if(!ok){await sb.auth.signOut();toast('Tu cuenta no tiene acceso a la caja',1);return mostrar(false)}
+ mostrar(true);iniciar()}
 
-// ---------- diagram accordion ----------
-document.querySelectorAll('.diagram .seg').forEach(seg => {
-  seg.addEventListener('click', () => {
-    const target = document.getElementById(seg.dataset.d);
-    const isShown = target.classList.contains('show');
-    document.querySelectorAll('.diagram .detail').forEach(d => d.classList.remove('show'));
-    document.querySelectorAll('.diagram .seg span.chev').forEach(c => c.textContent = '＋');
-    if(!isShown){
-      target.classList.add('show');
-      seg.querySelector('.chev').textContent = '－';
-    }
-  });
-});
+// ---- Catálogo: caché local + sincronización ----
+let cat=[],orden=[],canal=null,tmr=null;
+async function iniciar(){
+ cat=prep((await idb.get('cat'))||[]);buscar();
+ await sync();await cargarOrden();
+ if(!canal)canal=sb.channel('caja').on('postgres_changes',{event:'*',schema:'public',table:'caja_items'},cargarOrden).subscribe();
+ if(!tmr)tmr=setInterval(()=>sync(),300000)}
+async function sync(manual){
+ const{data,error}=await sb.from('productos').select('id,producto,precio,pg').order('producto');
+ if(error)return toast('Catálogo: '+error.message,1);
+ cat=prep(data);await idb.set('cat',data);buscar();if(manual)toast('Catálogo actualizado ('+data.length+')')}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!$('app').hidden)sync()});
+function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i,...Array(b.length).fill(0)]);for(let j=0;j<=b.length;j++)d[0][j]=j;
+ for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]:1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);return d[a.length][b.length]}
+const lq=()=>{$('q').value='';buscar()};
+function puntaje(toks,p){const w=p._n.split(' ');let s=0;
+ for(const t of toks){let m=9;for(const x of w){const e=Math.min(lev(t,x),lev(t,x.slice(0,t.length)));if(e<m)m=e}s+=m>Math.ceil(t.length/3)?9:m}return s}
+function buscar(){
+ const toks=norm($('q').value).split(' ').filter(Boolean),l=$('lista');l.replaceChildren();if(!toks.length)return;
+ let r=cat.filter(p=>toks.every(t=>p._n.includes(t))),sug=!r.length&&cat.length>0;
+ if(sug)r=cat.map(p=>[puntaje(toks,p),p]).filter(x=>x[0]<9).sort((a,b)=>a[0]-b[0]).slice(0,5).map(x=>x[1]);
+ else r.sort((a,b)=>b._n.startsWith(toks[0])-a._n.startsWith(toks[0]));
+ if(!r.length)return l.append(h('div',{className:'empty',textContent:'No se encontraron productos.'}));
+ if(sug)l.append(h('div',{className:'empty',textContent:'Sin coincidencia exacta. ¿Quisiste decir…?'}));
+ r.slice(0,50).forEach(p=>{const n=h('input',{type:'number',min:1,value:1,className:'n',inputMode:'numeric',onfocus:e=>e.target.select()});
+  l.append(h('div',{className:'it'},
+   h('div',{},h('b',{textContent:p.producto}),h('div',{className:'meta',textContent:'S/ '+Number(p.precio).toFixed(2)+(p.pg?' · Pág. Kardex: '+p.pg:'')})),
+   h('div',{className:'add'},n,h('button',{textContent:'Vender',onclick:async()=>{const c=parseInt(n.value);
+    if(await ajustar(p.id,c)){toast('✓ '+c+' × '+p.producto);navigator.vibrate&&navigator.vibrate(25);lq();cerrarBus()}}}))))})}
+$('q').onfocus=lq;   // al volver a tocar el buscador se limpia solo
+$('q').oninput=buscar;
+$('tn').onclick=()=>$('fa').hidden=!$('fa').hidden;
+$('gp').onclick=async()=>{
+ const producto=$('np').value.trim(),precio=parseFloat($('pr').value),pg=$('pgn').value;
+ if(!producto||isNaN(precio)||precio<0)return toast('Nombre y precio válidos son obligatorios',1);
+ const row={producto,precio};if(pg!=='')row.pg=parseInt(pg);
+ const{error}=await sb.from('productos').insert(row);if(error)return toast(error.message,1);
+ ['np','pr','pgn'].forEach(i=>$(i).value='');$('fa').hidden=true;await sync();toast('Producto guardado')};
 
-// ---------- timeline ----------
-const tlData = {
-  t0: {title:'Etapa manual', body:'Libros empastados, foliados y legalizados. Los asientos se registraban manualmente y se acumulaban después en el Libro Mayor. Limitaciones: errores de transcripción, dificultad para corregir registros, demoras en reportes, riesgo de pérdida física y escasa integración con facturación o bancos.'},
-  t1: {title:'Etapa mecanizada', body:'Uso de máquinas contables, sistemas computarizados y hojas sueltas o continuas. Se ganó velocidad de procesamiento, pero el contribuyente debía imprimir, ordenar, legalizar y conservar los registros, asegurando integridad, correlatividad e inalterabilidad.'},
-  t2: {title:'Etapa electrónica', body:'SLE-PLE (R.S. 286-2009/SUNAT): el contribuyente genera archivos que valida el PLE y SUNAT emite constancia de recepción. SLE-Portal (R.S. 066-2013): registros vía SUNAT Operaciones en Línea. SIRE (R.S. 112-2021 y modificatorias): integra el RVIE y el RCE con propuestas generadas a partir de comprobantes electrónicos, con prórrogas vigentes hacia 2026 según la R.S. 392-2025.'}
-};
-let tlProgress = 0;
-document.querySelectorAll('.tl-item').forEach((item, idx) => {
-  item.addEventListener('click', () => {
-    document.querySelectorAll('.tl-item').forEach((it,i) => { if(i<=idx) it.classList.add('done'); });
-    tlProgress = ((idx+1)/3)*100;
-    document.getElementById('tlFill').style.height = tlProgress + '%';
-    const d = tlData[item.dataset.tl];
-    openModal(d.title, d.body);
-  });
-});
+// ---- Orden del día (compartida en tiempo real) ----
+async function ajustar(id,d){
+ if(!d)return toast('Cantidad inválida',1),false;
+ const{error}=await sb.rpc('caja_ajustar',{p_producto:id,p_delta:d});
+ if(error)return toast(error.message,1),false;
+ cargarOrden();return true}
+async function cargarOrden(){
+ const{data,error}=await sb.from('caja_items').select('id,producto_id,nombre,cantidad,precio_unitario').is('cierre_id',null).order('id');
+ if(error)return toast(error.message,1);orden=data;pintar()}
+function pintar(){
+ const c=$('lineas');c.replaceChildren();let t=0;
+ if(!orden.length)c.append(h('div',{className:'empty',textContent:'Aún no registras ventas.'}));
+ orden.forEach(i=>{const s=i.cantidad*i.precio_unitario;t+=s;
+  c.append(h('div',{className:'ln'},h('span',{className:'d',textContent:i.nombre}),
+   h('button',{className:'sm',textContent:'−',onclick:()=>ajustar(i.producto_id,-1)}),h('span',{textContent:i.cantidad}),
+   h('button',{className:'sm',textContent:'+',onclick:()=>ajustar(i.producto_id,1)}),
+   h('b',{textContent:'S/ '+s.toFixed(2)}),h('button',{className:'sm x',textContent:'×',title:'Quitar',onclick:()=>ajustar(i.producto_id,-i.cantidad)})))});
+ $('total').textContent='S/ '+t.toFixed(2)}
 
-// ---------- function cards modal ----------
-const funcData = {
-  f0:{t:'Toma de decisiones', b:'Los libros permiten evaluar rentabilidad, liquidez, endeudamiento y capacidad de pago, sirviendo de base documental para decisiones financieras.'},
-  f1:{t:'Determinación tributaria', b:'Sustentan el cálculo del Impuesto a la Renta, el IGV y otras obligaciones fiscales frente a SUNAT.'},
-  f2:{t:'Control interno', b:'Ayudan a detectar errores, duplicidades, omisiones, operaciones inusuales y riesgos de fraude, además de controlar cuentas por cobrar y pagar, inventarios, efectivo y activos fijos.'},
-  f3:{t:'Sustento legal', b:'Respaldan las operaciones frente a SUNAT, auditores, bancos, inversionistas y socios, y sustentan la transparencia y rendición de cuentas de administradores.'}
-};
-document.querySelectorAll('#funcGrid .card').forEach(c => {
-  c.addEventListener('click', () => {
-    const d = funcData[c.dataset.modal];
-    openModal(d.t, d.b);
-  });
-});
+// ---- Cierre + PDF ----
+$('pdf').onclick=async()=>{
+ if(!orden.length)return toast('No hay ventas registradas',1);
+ const g=i=>{const v=$(i).value;return v===''?null:parseFloat(v)};
+ const f={turno:$('turno').value,operador:$('op').value.trim(),color:g('c'),a3:g('a3'),scan:g('sc'),espiral:g('es'),impresion:g('im'),yape_plin:g('yp'),n_op:$('nop').value.trim(),total_manual:g('tt')};
+ if(!confirm('Se cerrará la caja del día (la orden quedará vacía) y se generará el PDF. ¿Continuar?'))return;
+ const{data,error}=await sb.rpc('caja_cerrar',{p:f});
+ if(error)return toast(error.message,1);
+ try{hacerPdf(data.items,f)}catch(e){toast('Caja cerrada, pero falló el PDF: '+e.message,1)}
+ cargarOrden();toast('Caja cerrada')};
 
-function openModal(title, body, tag){
-  document.getElementById('modalBox').innerHTML =
-    (tag ? '<span class="tag-mini">'+tag+'</span>' : '') +
-    '<button class="close" onclick="closeModal()">✕</button>' +
-    '<h3>'+title+'</h3><p>'+body+'</p>';
-  document.getElementById('modalBg').classList.add('show');
-}
-function closeModal(){ document.getElementById('modalBg').classList.remove('show'); }
-document.getElementById('modalBg').addEventListener('click', e => { if(e.target.id==='modalBg') closeModal(); });
-document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+function hacerPdf(items,f){
+ const d=new window.jspdf.jsPDF({unit:'pt',format:'a4'}),W=595.28,H=841.89,L=99.21,R=28.35,T=85.04,B=85.04,RH=15,GAP=18;
+ const tot=Math.round(items.reduce((a,i)=>a+Number(i.subtotal),0)*100)/100;
+ const bw=(W-L-R-GAP)/2,cw=[.5556,.1605,.2839].map(x=>Math.round(bw*x));cw[2]+=Math.round(bw)-cw[0]-cw[1]-cw[2];
+ const mr=Math.max(Math.floor((H-T-B-40)/RH),5);
+ const bloque=(x,its)=>{d.setFont('helvetica','normal');d.setFontSize(8.5);
+  for(let i=0;i<mr;i++){const y=T+i*RH,it=its[i];
+   if(it){let cx=x;[d.splitTextToSize(it.nombre,cw[0]-6)[0],String(Math.round(it.cantidad)),'S/ '+Number(it.subtotal).toFixed(2)].forEach((v,k)=>{d.text(v,cx+3,y+RH-4);cx+=cw[k]})}
+   d.line(x,y+RH,x+bw,y+RH)}
+  d.line(x,T,x+bw,T);let cx=x;[0,...cw].forEach(w=>{cx+=w;d.line(cx,T,cx,T+RH*mr)})};
+ let rest=items.slice(),first=true;
+ for(;;){
+  if(!first){d.addPage();d.setFont('helvetica','italic');d.setFontSize(8);d.text('(continuación)',L,T-14)}
+  bloque(L,rest.slice(0,mr));bloque(L+bw+GAP,rest.slice(mr,2*mr));rest=rest.slice(2*mr);first=false;
+  if(!rest.length){d.setFont('helvetica','bold');d.setFontSize(11);d.text('TOTAL : S/ '+tot.toFixed(2),L,T+RH*mr+22);break}}
+ // Hoja 2
+ d.addPage();const cx=W/2,LX=55,RX=W-55,y=193,fa=26,m=(v,s=1)=>v==null?'':(s?'S/ ':'')+v.toFixed(2);
+ d.setFont('helvetica','bold');d.setFontSize(18);d.text('SENATI',cx,90,{align:'center'});
+ d.setFont('helvetica','normal');d.setFontSize(14);d.text(fechaES(new Date()),cx,116,{align:'center'});
+ d.setFontSize(12);d.text('Turno: '+f.turno+(f.operador?' — '+f.operador:''),cx,138,{align:'center'});
+ d.text('Librería: S/ '+tot.toFixed(2),LX,y);d.text('Color: '+m(f.color),LX,y+fa);
+ d.text('A3 : '+m(f.a3,0),LX,y+2*fa);d.text('Scan : '+m(f.scan,0),LX,y+3*fa);
+ d.text('Espiral : '+m(f.espiral,0),LX,y+4*fa);d.text('Impresión : '+m(f.impresion,0),LX,y+5*fa);
+ d.text('YAPE/PLIN',RX,y,{align:'right'});d.text(m(f.yape_plin)||'S/',RX,y+fa,{align:'right'});
+ d.text('N° OP.',RX,y+2*fa,{align:'right'});d.text(f.n_op||'',RX,y+3*fa,{align:'right'});
+ d.setFont('helvetica','bold');d.setFontSize(15);d.text('TOTAL : '+(m(f.total_manual)||'____________'),cx,y+5*fa+60,{align:'center'});
+ d.save('SENATI_CAJA_'+new Date().toISOString().slice(0,19).replace(/[-:T]/g,'')+'.pdf')}
 
-// ---------- regime tabs ----------
-document.querySelectorAll('.rg-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.rg-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.regime-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('rg-'+btn.dataset.rg).classList.add('active');
-  });
-});
-
-// ---------- calculator tool ----------
-function calcLibros(){
-  const regime = document.getElementById('calcRegime').value;
-  const uit = parseFloat(document.getElementById('calcUit').value);
-  const box = document.getElementById('calcResult');
-  if(isNaN(uit)){ box.innerHTML = '<p class="placeholder">Completa los campos para ver los libros que te corresponderían.</p>'; return; }
-  let libros = [];
-  let label = '';
-  if(regime === 'rer'){
-    label = 'RER';
-    libros = ['Registro de Ventas e Ingresos', 'Registro de Compras (si hay operaciones gravadas con IGV)'];
-  } else if(regime === 'rmt'){
-    label = 'MYPE Tributario';
-    libros = uit <= 300
-      ? ['Registro de Ventas', 'Registro de Compras', 'Libro Diario de Formato Simplificado']
-      : ['Libros y registros conforme al artículo 65 de la Ley del Impuesto a la Renta'];
-  } else {
-    label = 'Régimen General';
-    if(uit <= 300) libros = ['Registro de Compras', 'Registro de Ventas', 'Libro Diario de Formato Simplificado'];
-    else if(uit <= 500) libros = ['Registro de Compras', 'Registro de Ventas', 'Libro Diario', 'Libro Mayor'];
-    else if(uit <= 1700) libros = ['Registro de Compras', 'Registro de Ventas', 'Libro Diario', 'Libro Mayor', 'Libro de Inventarios y Balances'];
-    else libros = ['Contabilidad completa', 'Más registros específicos según la actividad'];
-  }
-  box.innerHTML = '<span class="tag-mini">'+label+(regime!=='rer' ? ' · '+uit+' UIT' : '')+'</span>' +
-    '<ul>' + libros.map(l => '<li>'+l+'</li>').join('') + '</ul>' +
-    '<p style="color:#93A9CE; font-size:.8rem; margin-top:12px;">Resultado orientativo. Verifica tu caso específico con SUNAT o tu contador.</p>';
-}
-document.getElementById('calcRegime').addEventListener('change', calcLibros);
-document.getElementById('calcUit').addEventListener('input', calcLibros);
-
-// ---------- matrix filter ----------
-document.querySelectorAll('#matrixFilter button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#matrixFilter button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const cat = btn.dataset.cat;
-    document.querySelectorAll('.matrix-row').forEach(row => {
-      row.classList.toggle('hidden', cat !== 'all' && row.dataset.cat !== cat);
-    });
-  });
-});
-
-// ---------- fichas accordion + search ----------
-document.querySelectorAll('.ficha .fq').forEach(fq => {
-  fq.addEventListener('click', () => fq.parentElement.classList.toggle('open'));
-});
-document.getElementById('fichaSearch').addEventListener('input', e => {
-  const q = e.target.value.toLowerCase();
-  document.querySelectorAll('.ficha').forEach(f => {
-    const text = f.textContent.toLowerCase();
-    f.style.display = text.includes(q) ? '' : 'none';
-  });
-});
+document.querySelectorAll('#app input[step]').forEach(i=>i.inputMode='decimal');
+$('cierre').open=!matchMedia('(max-width:860px)').matches;
+const bus=$('bus'),vv=window.visualViewport;
+const ajVV=()=>{if(vv&&bus.classList.contains('on')){bus.style.height=vv.height+'px';bus.style.top=vv.offsetTop+'px'}};
+function abrirBus(){history.pushState({bus:1},'');bus.classList.add('on');ajVV();$('q').focus()}
+function cerrarBus(){if(!bus.classList.contains('on'))return;bus.classList.remove('on');$('q').blur();lq();if(history.state&&history.state.bus)history.back()}
+window.addEventListener('popstate',()=>{if(bus.classList.contains('on')){bus.classList.remove('on');$('q').blur();lq()}});
+bus.addEventListener('click',e=>{if(e.target===bus||e.target===$('lista'))cerrarBus()});
+$('fab').onclick=abrirBus;
+if(vv){vv.addEventListener('resize',ajVV);vv.addEventListener('scroll',ajVV)}
+sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT')mostrar(false)});
+entrar();
+</script><script>
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script>
-</body>
-</html>
+</body></html>
