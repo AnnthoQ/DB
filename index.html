@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Caja · SENATI</title><meta name="theme-color" content="#241F1C">
+<title>Caja · SENATI</title><meta name="theme-color" content="#14110F">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -9,53 +9,103 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Caja SENATI">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>/* aplica el tema guardado antes de pintar, para que no parpadee */
+try{if(JSON.parse(localStorage.getItem('cfg')||'{}').tema==='claro')document.documentElement.dataset.theme='light'}catch(e){}</script>
 <style>
-:root{--paper:#F6F1E7;--bg:#EDE5D3;--ink:#241F1C;--soft:#5B5349;--line:#D9CDB5;--stamp:#A8341F}
+/* ---- Tema oscuro (por defecto) ---- */
+:root{--bg:#14110F;--paper:#1E1A17;--ink:#EDE6DA;--soft:#A39A8E;--line:#3A332D;--field:#27221E;--receipt:#1A1715;
+ --stamp:#C8462B;--stamp-ink:#F07A5C;--on-stamp:#fff;--btn:#EDE6DA;--on-btn:#14110F;
+ --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.28);color-scheme:dark}
+/* ---- Tema claro ---- */
+:root[data-theme=light]{--bg:#EDE5D3;--paper:#F6F1E7;--ink:#241F1C;--soft:#5B5349;--line:#D9CDB5;--field:#fff;--receipt:#FFFDF8;
+ --stamp:#A8341F;--stamp-ink:#A8341F;--on-stamp:#fff;--btn:#241F1C;--on-btn:#F6F1E7;
+ --shadow:0 1px 2px rgba(36,31,28,.08),0 6px 18px rgba(36,31,28,.06);color-scheme:light}
 *{box-sizing:border-box}[hidden]{display:none!important}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px Inter,system-ui,sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
-header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:12px;margin-bottom:20px;gap:8px}
-h1{font-size:1.3rem;margin:0}h2{font-size:.95rem;margin:0 0 10px}
-.sub,.meta{font:.78rem ui-monospace,monospace;color:var(--soft)}
-.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}@media(max-width:860px){.grid{grid-template-columns:1fr}}
-.panel{background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:16px;margin-bottom:14px}
-input,select{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink);width:100%}
-input:focus,select:focus{outline:2px solid var(--stamp)}
-button{font:600 .85rem inherit;cursor:pointer;border-radius:3px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:9px 13px}
-button:hover{opacity:.88}button.sec{background:none;color:var(--ink)}button.stamp{background:var(--stamp);border-color:var(--stamp);width:100%}
+header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:20px;gap:8px}
+header .acc{display:flex;align-items:center;gap:8px}
+h1{font-size:1.25rem;margin:0;letter-spacing:-.01em}h1 em{font-style:normal;color:var(--stamp-ink)}
+h2{font-size:.78rem;margin:0 0 12px;color:var(--soft);text-transform:uppercase;letter-spacing:.08em}
+.sub,.meta{font:.78rem ui-monospace,"Cascadia Mono",Consolas,monospace;color:var(--soft)}
+.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+input,select{font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--field);color:var(--ink);width:100%;transition:border-color .15s}
+input:hover,select:hover{border-color:var(--soft)}
+input:focus,select:focus{outline:2px solid var(--stamp);outline-offset:1px;border-color:transparent}
+button{font:600 .85rem/1.2 inherit;font-family:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--btn);background:var(--btn);color:var(--on-btn);padding:9px 14px;transition:opacity .15s,transform .05s}
+button:hover{opacity:.88}button:active{transform:translateY(1px)}
+button:focus-visible{outline:2px solid var(--stamp);outline-offset:2px}
+button.sec{background:none;color:var(--ink);border-color:var(--line)}button.sec:hover{border-color:var(--soft);opacity:1}
+button.stamp{background:var(--stamp);border-color:var(--stamp);color:var(--on-stamp);width:100%}
+button.ico{width:36px;height:36px;padding:0;font-size:1.1rem;display:inline-grid;place-items:center}
+button:disabled{opacity:.5;cursor:wait}
 .row{display:flex;gap:8px;margin-bottom:10px}.row input{flex:1}.row button{width:auto}
 #lista{max-height:60vh;overflow:auto}
-.it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px dashed var(--line)}
+.it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line)}
+.it:last-child{border-bottom:0}
 .add{display:flex;gap:6px;flex-shrink:0}.add .n{width:60px;text-align:center}
 .empty{color:var(--soft);font-size:.85rem;padding:8px 2px}
-.link{background:none;border:none;color:var(--soft);text-decoration:underline;padding:10px 0 0;font-weight:500}
+.link{background:none;border:none;color:var(--soft);text-decoration:underline;padding:10px 0 0;font-weight:500}.link:hover{color:var(--ink)}
 .f3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin:10px 0}
-.recibo{background:#FFFDF8;border:1px solid var(--line);padding:18px 14px 6px;margin-bottom:14px;font-family:ui-monospace,monospace}
+.recibo{background:var(--receipt);border:1px solid var(--line);border-radius:12px;padding:18px 16px 6px;margin-bottom:14px;font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;box-shadow:var(--shadow);font-variant-numeric:tabular-nums}
 .ln{display:flex;align-items:center;gap:8px;font-size:.85rem;padding:7px 0;border-bottom:1px dashed var(--line)}.ln .d{flex:1}
-.sm{width:24px;height:24px;padding:0;background:var(--bg);color:var(--ink);border-color:var(--line)}.x{color:var(--stamp);background:none;border:none}
-.tot{display:flex;justify-content:space-between;font-weight:700;font-size:1.15rem;padding:14px 0}.tot b{color:var(--stamp)}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g2 label{font-size:.7rem;color:var(--soft);display:block;margin-bottom:3px}.full{grid-column:1/-1}
-#login{max-width:340px;margin-top:10vh}
-.toast{z-index:30;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:3px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
-.toast.show{opacity:1}.toast.error{background:var(--stamp)}
+.ln .q{min-width:2.2ch;text-align:center}.ln b{min-width:76px;text-align:right}
+.sm{width:26px;height:26px;padding:0;background:var(--field);color:var(--ink);border-color:var(--line);border-radius:6px}.x{color:var(--stamp-ink);background:none;border:none}
+.tot{display:flex;justify-content:space-between;font-weight:700;font-size:1.15rem;padding:14px 0}.tot b{color:var(--stamp-ink)}
+/* ---- Animación de cierre: sello sobre el recibo ---- */
+.recibo{position:relative;overflow:hidden}
+#lineas{transition:opacity .3s,filter .3s}.recibo.cerrado #lineas{opacity:.35;filter:blur(.6px)}
+.sello{position:absolute;left:50%;top:50%;z-index:2;transform:translate(-50%,-50%) rotate(-12deg);border:3px double var(--stamp-ink);color:var(--stamp-ink);
+ padding:10px 20px 8px;border-radius:10px;font:800 1.55rem/1 ui-monospace,"Cascadia Mono",Consolas,monospace;letter-spacing:.14em;text-align:center;white-space:nowrap;
+ pointer-events:none;opacity:0;background:var(--receipt);transition:opacity .4s}
+.sello small{display:block;font-size:.62rem;letter-spacing:.06em;font-weight:600;margin-top:6px}
+.sello.on{animation:sello .55s cubic-bezier(.2,1.5,.4,1) forwards}.sello.off{opacity:0!important;animation:none}
+@keyframes sello{0%{opacity:0;transform:translate(-50%,-50%) rotate(-24deg) scale(2.8)}55%{opacity:1}100%{opacity:1;transform:translate(-50%,-50%) rotate(-12deg) scale(1)}}
+.recibo.golpe{animation:golpe .35s .33s}
+@keyframes golpe{0%,100%{transform:none}35%{transform:translateY(4px) scale(.985)}70%{transform:translateY(-1px)}}
+#lineas.sale>*{animation:sale .4s ease-in forwards}
+@keyframes sale{to{opacity:0;transform:translateX(48px)}}
+@media(prefers-reduced-motion:reduce){.sello.on,.recibo.golpe,#lineas.sale>*{animation-duration:.01s;animation-delay:0s}}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g2 label,.g4 label{font-size:.72rem;color:var(--soft);display:block;margin-bottom:4px}.full{grid-column:1/-1}
+#login{max-width:360px;margin-top:10vh}#login label{display:block;margin-bottom:4px}
+.toast{z-index:30;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--btn);color:var(--on-btn);padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;box-shadow:var(--shadow);display:flex;align-items:center}
+.toast.show{opacity:1}.toast.error{background:var(--stamp);color:var(--on-stamp)}.toast.act{pointer-events:auto}
+.toast button{margin-left:12px;background:none;border:1px solid currentColor;color:inherit;padding:4px 10px;min-height:0}
+summary{font-weight:600;font-size:.95rem;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:32px}
+summary::-webkit-details-marker{display:none}summary::after{content:'▾';font-size:1.2rem;transition:transform .2s;color:var(--soft)}details[open]>summary::after{transform:rotate(180deg)}
+/* ---- Ajustes ---- */
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);padding:0;width:min(580px,calc(100vw - 24px));max-height:calc(100dvh - 24px);box-shadow:var(--shadow)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+.dlg-h{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:1}
+.dlg-b{padding:16px 18px}
+.dlg-f{display:flex;gap:8px;flex-wrap:wrap;padding:14px 18px;border-top:1px solid var(--line);position:sticky;bottom:0;background:var(--paper)}
+.dlg-f button{flex:1}
+fieldset{border:1px solid var(--line);border-radius:10px;padding:12px 14px 14px;margin:0 0 14px}
+legend{font-weight:600;font-size:.72rem;padding:0 6px;color:var(--soft);text-transform:uppercase;letter-spacing:.08em}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.hint{font-size:.75rem;color:var(--soft);margin:8px 0 0}
+.chk{display:flex;gap:10px;align-items:center;font-size:.9rem;cursor:pointer}
+input[type=checkbox]{width:20px;height:20px;min-height:0;accent-color:var(--stamp);flex-shrink:0}
 @media(max-width:860px){
  .wrap{padding:14px 12px calc(110px + env(safe-area-inset-bottom))}
- h1{font-size:1.1rem}
+ h1{font-size:1.05rem}
  input,select{font-size:16px;min-height:46px}
  button{min-height:46px;font-size:.95rem}
-  .it{flex-wrap:wrap;padding:12px 2px}.it>div:first-child{flex:1 1 100%}
+ button.ico{width:46px;height:46px}
+ .it{flex-wrap:wrap;padding:12px 2px}.it>div:first-child{flex:1 1 100%}
  .add{width:100%}.add .n{width:76px}.add button{flex:1}
  .sm{width:38px;height:38px;min-height:38px;font-size:1.1rem}
  .ln{gap:6px;padding:9px 0}#lista{max-height:none}
  #tn,#fa{display:none}
+ #fecha{display:none}
+ .g4{grid-template-columns:1fr 1fr}
 }
-summary{font-weight:600;font-size:.95rem;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:32px}
-summary::-webkit-details-marker{display:none}summary::after{content:'▾';font-size:1.2rem;transition:transform .2s}details[open]>summary::after{transform:rotate(180deg)}
 #fab,#cb{display:none}
 @media(max-width:860px){
- #bus{display:none;position:fixed;left:0;right:0;top:0;height:100%;z-index:20;margin:0;border:0;border-radius:0;background:var(--bg);padding:calc(12px + env(safe-area-inset-top)) 12px 12px;flex-direction:column}
+ #bus{display:none;position:fixed;left:0;right:0;top:0;height:100%;z-index:20;margin:0;border:0;border-radius:0;background:var(--bg);box-shadow:none;padding:calc(12px + env(safe-area-inset-top)) 12px 12px;flex-direction:column}
  #bus.on{display:flex}#bus h2{display:none}
- #fab{display:block;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:10;min-height:64px;border-radius:999px;background:var(--stamp);border-color:var(--stamp);font-size:1.05rem;letter-spacing:.08em;box-shadow:0 8px 22px rgba(0,0,0,.3)}
+ #fab{display:block;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:10;min-height:64px;border-radius:999px;background:var(--stamp);border-color:var(--stamp);color:var(--on-stamp);font-size:1.05rem;letter-spacing:.08em;box-shadow:0 8px 22px rgba(0,0,0,.4)}
  #bus .row{margin:0 0 6px}
  #bus #q{border:0;background:transparent;box-shadow:none;outline:none;border-radius:0;font-size:32px;font-weight:600;text-align:center;min-height:64px;padding:4px 0;caret-color:var(--stamp)}
  #q::-webkit-search-cancel-button{display:none;-webkit-appearance:none}
@@ -66,43 +116,77 @@ summary::-webkit-details-marker{display:none}summary::after{content:'▾';font-s
 </style></head><body>
 
 <div id="login" class="wrap"><div class="panel">
- <h1 style="margin-bottom:14px">Caja · SENATI</h1>
- <form id="lg"><label class="meta">Código</label><input id="cod" autocomplete="username" required style="margin-bottom:10px">
- <label class="meta">Contraseña</label><input id="pw" type="password" autocomplete="current-password" required style="margin-bottom:14px">
+ <h1 style="margin-bottom:18px">Caja · <em>SENATI</em></h1>
+ <form id="lg"><label class="meta" for="cod">Código</label><input id="cod" autocomplete="username" required style="margin-bottom:12px">
+ <label class="meta" for="pw">Contraseña</label><input id="pw" type="password" autocomplete="current-password" required style="margin-bottom:16px">
  <button class="stamp">Ingresar</button></form></div></div>
 
 <div id="app" class="wrap" hidden>
- <header><h1>Caja · Librería SENATI</h1><div><span class="sub" id="fecha"></span> <button class="sec" id="salir" style="padding:4px 8px">Salir</button></div></header>
+ <header><h1>Caja · <em>Librería SENATI</em></h1><div class="acc"><span class="sub" id="fecha"></span>
+  <button class="sec ico" id="cfg" title="Ajustes" aria-label="Ajustes">⚙</button><button class="sec" id="salir">Salir</button></div></header>
  <button id="fab">REGISTRAR PRODUCTO</button>
  <div class="grid">
   <section class="panel" id="bus">
    <h2>Buscar producto</h2>
-   <div class="row"><input id="q" type="search" placeholder="Ej: impresión, espiral, A3…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"></div>
+   <div class="row"><input id="q" type="search" placeholder="Ej: impresión, espiral, A3…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Buscar producto"></div>
    <div id="lista"></div>
    <button class="link" id="tn">+ Agregar producto nuevo</button>
-   <div id="fa" hidden><div class="f3"><input id="np" placeholder="Nombre"><input id="pr" type="number" step="0.01" min="0" placeholder="Precio S/"><input id="pgn" type="number" min="0" placeholder="PG"></div><button id="gp">Guardar producto</button></div>
+   <div id="fa" hidden><div class="f3"><input id="np" placeholder="Nombre" aria-label="Nombre"><input id="pr" type="number" step="0.01" min="0" placeholder="Precio S/" aria-label="Precio"><input id="pgn" type="number" min="0" placeholder="PG" aria-label="Página Kardex"></div><button id="gp">Guardar producto</button></div>
   </section>
   <section>
    <div class="recibo" id="rec"><div style="text-align:center;margin-bottom:8px" class="meta" id="rf"></div>
     <div id="lineas"></div><div class="tot"><span>TOTAL</span><b id="total">S/ 0.00</b></div></div>
-   <details class="panel" id="cierre"><summary>Cerrar caja</summary><div class="g2" style="margin-top:12px">
-    <div><label>Turno</label><select id="turno"><option>Mañana</option><option>Tarde</option></select></div>
-    <div><label>Operador (opcional)</label><input id="op"></div>
-    <div class="full meta">Librería se calcula sola. Lo demás lo ingresas tú:</div>
-    <div><label>Color S/</label><input id="c" type="number" step="0.01" min="0"></div>
-    <div><label>A3 S/</label><input id="a3" type="number" step="0.01" min="0"></div>
-    <div><label>Scan S/</label><input id="sc" type="number" step="0.01" min="0"></div>
-    <div><label>Espiral S/</label><input id="es" type="number" step="0.01" min="0"></div>
-    <div><label>Impresión S/</label><input id="im" type="number" step="0.01" min="0"></div>
-    <div><label>Yape/Plin S/</label><input id="yp" type="number" step="0.01" min="0"></div>
-    <div><label>N° operación</label><input id="nop"></div>
-    <div><label>Total S/ (efectivo real)</label><input id="tt" type="number" step="0.01" min="0"></div>
-    <div class="full"><button class="stamp" id="pdf">Generar PDF y cerrar caja</button></div>
+   <details class="panel" id="cierre"><summary>Cerrar caja</summary><div class="g2" style="margin-top:14px">
+    <div><label for="turno">Turno</label><select id="turno"><option>Mañana</option><option>Tarde</option></select></div>
+    <div><label for="op">Operador</label><input id="op"></div>
+    <div><label for="c">Color S/</label><input id="c" type="number" step="0.01" min="0"></div>
+    <div><label for="a3">A3 S/</label><input id="a3" type="number" step="0.01" min="0"></div>
+    <div><label for="sc">Scan S/</label><input id="sc" type="number" step="0.01" min="0"></div>
+    <div><label for="es">Espiral S/</label><input id="es" type="number" step="0.01" min="0"></div>
+    <div><label for="yp">Yape/Plin S/</label><input id="yp" type="number" step="0.01" min="0"></div>
+    <div><label for="nop">N° operación</label><input id="nop"></div>
+    <div class="full"><label for="tt">Total S/</label><input id="tt" type="number" step="0.01" min="0"></div>
+    <div class="full"><button class="stamp" id="pdf">Cerrar caja</button></div>
    </div></details>
   </section>
  </div>
 </div>
-<div class="toast" id="toast"></div>
+
+<dialog id="ajustes" aria-labelledby="ajT">
+ <div class="dlg-h"><h1 id="ajT" style="font-size:1.05rem">Ajustes</h1><button class="sec ico" id="cfgX" aria-label="Cerrar">✕</button></div>
+ <div class="dlg-b">
+  <fieldset><legend>Apariencia</legend>
+   <label class="meta" for="cTema" style="display:block;margin-bottom:4px">Tema</label>
+   <select id="cTema" data-k="tema"><option value="oscuro">Oscuro</option><option value="claro">Claro</option></select>
+  </fieldset>
+  <fieldset><legend>PDF de cierre</legend>
+   <div class="g2">
+    <div><label for="cPapel">Papel</label><select id="cPapel" data-k="papel"><option value="A5">A5 (14,8 × 21 cm)</option><option value="A4">A4 (21 × 29,7 cm)</option></select></div>
+    <div><label for="cEsc">Escala del contenido</label><select id="cEsc" data-k="escala"><option value="auto">Automática (según papel)</option><option>60</option><option>70</option><option>80</option><option>90</option><option>100</option></select></div>
+    <label class="chk full"><input type="checkbox" data-k="soloOcupadas"> Hoja 1: imprimir solo las filas con productos</label>
+   </div>
+  </fieldset>
+  <fieldset><legend>Márgenes hoja 1 · tabla (cm)</legend>
+   <div class="g4">
+    <div><label for="m1s">Superior</label><input id="m1s" type="number" step="0.1" min="0" data-k="h1.sup"></div>
+    <div><label for="m1i">Inferior</label><input id="m1i" type="number" step="0.1" min="0" data-k="h1.inf"></div>
+    <div><label for="m1z">Izquierdo</label><input id="m1z" type="number" step="0.1" min="0" data-k="h1.izq"></div>
+    <div><label for="m1d">Derecho</label><input id="m1d" type="number" step="0.1" min="0" data-k="h1.der"></div>
+   </div>
+  </fieldset>
+  <fieldset><legend>Márgenes hoja 2 · resumen (cm)</legend>
+   <div class="g4">
+    <div><label for="m2s">Superior</label><input id="m2s" type="number" step="0.1" min="0" data-k="h2.sup"></div>
+    <div><label for="m2i">Inferior</label><input id="m2i" type="number" step="0.1" min="0" data-k="h2.inf"></div>
+    <div><label for="m2z">Izquierdo</label><input id="m2z" type="number" step="0.1" min="0" data-k="h2.izq"></div>
+    <div><label for="m2d">Derecho</label><input id="m2d" type="number" step="0.1" min="0" data-k="h2.der"></div>
+   </div>
+   <p class="hint">Los ajustes se guardan en este dispositivo.</p>
+  </fieldset>
+ </div>
+ <div class="dlg-f"><button class="sec" id="cfgReset">Restablecer</button><button id="cfgPrev">Vista previa del PDF</button></div>
+</dialog>
+<div class="toast" id="toast" role="status"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -111,7 +195,13 @@ const SB='https://pvgdkcadqakfercyguhd.supabase.co',
 KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2Z2RrY2FkcWFrZmVyY3lndWhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjI4OTEsImV4cCI6MjA4ODg5ODg5MX0.6K3ei27nBJ6jVwSWskrnpYlTUAs4i3nPbbwTm1eGB9M';
 const sb=supabase.createClient(SB,KEY),$=i=>document.getElementById(i);
 const h=(t,p={},...k)=>{const e=document.createElement(t);Object.assign(e,p);e.append(...k);return e};
-const toast=(m,e)=>{const t=$('toast');t.textContent=m;t.className='toast show'+(e?' error':'');setTimeout(()=>t.className='toast',2600)};
+let tT;
+// act = {t:'Texto del botón', f:función} añade una acción al aviso (p. ej. Deshacer)
+const toast=(m,e,act)=>{const t=$('toast');clearTimeout(tT);t.replaceChildren(m);
+ if(act)t.append(h('button',{textContent:act.t,onclick:()=>{clearTimeout(tT);t.className='toast';act.f()}}));
+ t.className='toast show'+(e?' error':'')+(act?' act':'');tT=setTimeout(()=>t.className='toast',act?5000:2600)};
+// Bloquea el botón mientras corre f, para evitar dobles toques
+const ocupado=async(b,f)=>{if(b.disabled)return;b.disabled=true;try{return await f()}finally{b.disabled=false}};
 const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 const prep=a=>a.map(p=>({...p,_n:norm(p.producto)}));
 const DIAS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -136,7 +226,7 @@ async function entrar(){
  mostrar(true);iniciar()}
 
 // ---- Catálogo: caché local + sincronización ----
-let cat=[],orden=[],canal=null,tmr=null;
+let cat=[],orden=[],canal=null,tmr=null,animando=false;
 async function iniciar(){
  cat=prep((await idb.get('cat'))||[]);buscar();
  await sync();await cargarOrden();
@@ -162,8 +252,10 @@ function buscar(){
  r.slice(0,50).forEach(p=>{const n=h('input',{type:'number',min:1,value:1,className:'n',inputMode:'numeric',onfocus:e=>e.target.select()});
   l.append(h('div',{className:'it'},
    h('div',{},h('b',{textContent:p.producto}),h('div',{className:'meta',textContent:'S/ '+Number(p.precio).toFixed(2)+(p.pg?' · Pág. Kardex: '+p.pg:'')})),
-   h('div',{className:'add'},n,h('button',{textContent:'Vender',onclick:async()=>{const c=parseInt(n.value);
-    if(await ajustar(p.id,c)){toast('✓ '+c+' × '+p.producto);navigator.vibrate&&navigator.vibrate(25);lq();cerrarBus()}}}))))})}
+   h('div',{className:'add'},n,h('button',{textContent:'Vender',onclick:e=>ocupado(e.currentTarget,async()=>{const c=Number(n.value);
+    if(!Number.isInteger(c)||c<1)return toast('La cantidad debe ser un número entero mayor que 0',1);
+    if(c>20&&!confirm('¿Vender '+c+' × '+p.producto+'?'))return;
+    if(await ajustar(p.id,c)){toast('✓ '+c+' × '+p.producto);navigator.vibrate&&navigator.vibrate(25);lq();cerrarBus()}})}))))})}
 $('q').onfocus=lq;   // al volver a tocar el buscador se limpia solo
 $('q').oninput=buscar;
 $('tn').onclick=()=>$('fa').hidden=!$('fa').hidden;
@@ -181,56 +273,136 @@ async function ajustar(id,d){
  if(error)return toast(error.message,1),false;
  cargarOrden();return true}
 async function cargarOrden(){
+ if(animando)return;   // el tiempo real no debe repintar a mitad de la animación de cierre
  const{data,error}=await sb.from('caja_items').select('id,producto_id,nombre,cantidad,precio_unitario').is('cierre_id',null).order('id');
  if(error)return toast(error.message,1);orden=data;pintar()}
 function pintar(){
  const c=$('lineas');c.replaceChildren();let t=0;
  if(!orden.length)c.append(h('div',{className:'empty',textContent:'Aún no registras ventas.'}));
  orden.forEach(i=>{const s=i.cantidad*i.precio_unitario;t+=s;
+  // Quitar la línea completa (× o − con cantidad 1) ofrece Deshacer
+  const quitar=e=>ocupado(e.currentTarget,async()=>{const {producto_id:id,cantidad:q,nombre}=i;
+   if(await ajustar(id,-q))toast('Quitado: '+nombre,0,{t:'Deshacer',f:()=>ajustar(id,q)})});
   c.append(h('div',{className:'ln'},h('span',{className:'d',textContent:i.nombre}),
-   h('button',{className:'sm',textContent:'−',onclick:()=>ajustar(i.producto_id,-1)}),h('span',{textContent:i.cantidad}),
+   h('button',{className:'sm',textContent:'−',onclick:e=>i.cantidad>1?ajustar(i.producto_id,-1):quitar(e)}),h('span',{className:'q',textContent:i.cantidad}),
    h('button',{className:'sm',textContent:'+',onclick:()=>ajustar(i.producto_id,1)}),
-   h('b',{textContent:'S/ '+s.toFixed(2)}),h('button',{className:'sm x',textContent:'×',title:'Quitar',onclick:()=>ajustar(i.producto_id,-i.cantidad)})))});
+   h('b',{textContent:'S/ '+s.toFixed(2)}),h('button',{className:'sm x',textContent:'×',title:'Quitar',onclick:quitar})))});
  $('total').textContent='S/ '+t.toFixed(2)}
 
+// ---- Ajustes (tema + PDF), guardados en este dispositivo ----
+const CM=28.3465,PAPEL={A4:[595.28,841.89],A5:[419.53,595.28]};
+const CFG0={tema:'oscuro',papel:'A5',escala:'auto',soloOcupadas:true,
+ h1:{sup:3.5,inf:4,izq:3.5,der:1},h2:{sup:2.5,inf:4,izq:1,der:2}};
+const clon=o=>JSON.parse(JSON.stringify(o));
+let cfg=clon(CFG0);
+try{const g=JSON.parse(localStorage.getItem('cfg')||'{}');cfg={...cfg,...g,h1:{...cfg.h1,...g.h1},h2:{...cfg.h2,...g.h2}}}catch(e){}
+const guardarCfg=()=>{try{localStorage.setItem('cfg',JSON.stringify(cfg))}catch(e){}};
+const aplicarTema=()=>{const cl=cfg.tema==='claro';document.documentElement.dataset.theme=cl?'light':'dark';
+ document.querySelector('meta[name=theme-color]').content=cl?'#241F1C':'#14110F'};
+aplicarTema();
+const campos=[...document.querySelectorAll('#ajustes [data-k]')];
+const getK=k=>k.split('.').reduce((o,p)=>o[p],cfg);
+const setK=(k,v)=>{const ps=k.split('.'),u=ps.pop();ps.reduce((o,p)=>o[p],cfg)[u]=v};
+const llenarAjustes=()=>campos.forEach(c=>{const v=getK(c.dataset.k);if(c.type==='checkbox')c.checked=v;else c.value=v});
+campos.forEach(c=>c.onchange=()=>{
+ let v=c.type==='checkbox'?c.checked:c.value;
+ if(c.type==='number'){v=parseFloat(v);if(!(v>=0)){llenarAjustes();return toast('Ingresa un margen válido (0 o más)',1)}}
+ if(c.dataset.k==='escala'&&v!=='auto')v=Number(v);
+ setK(c.dataset.k,v);guardarCfg();aplicarTema();
+ try{medidas()}catch(e){toast(e.message,1)}});
+$('cfg').onclick=()=>{llenarAjustes();$('ajustes').showModal()};
+$('cfgX').onclick=()=>$('ajustes').close();
+$('ajustes').addEventListener('click',e=>{if(e.target===$('ajustes'))$('ajustes').close()});
+$('cfgReset').onclick=()=>{cfg=clon(CFG0);guardarCfg();aplicarTema();llenarAjustes();toast('Ajustes restablecidos')};
+$('cfgPrev').onclick=()=>{
+ // Usa la orden actual; si está vacía, productos de ejemplo para ver el diseño
+ const its=orden.length?orden.map(i=>({producto_id:i.producto_id,nombre:i.nombre,cantidad:i.cantidad,subtotal:i.cantidad*i.precio_unitario}))
+  :Array.from({length:12},(_,k)=>({nombre:'Producto de ejemplo '+(k+1),cantidad:k%3+1,subtotal:(k%3+1)*1.5}));
+ try{hacerPdf(its,leerCierre(),true)}catch(e){toast(e.message,1)}};
+
 // ---- Cierre + PDF ----
-$('pdf').onclick=async()=>{
+const leerCierre=()=>{const g=i=>{const v=$(i).value;return v===''?null:parseFloat(v)};
+ return{turno:$('turno').value,operador:$('op').value.trim(),color:g('c'),a3:g('a3'),scan:g('sc'),espiral:g('es'),impresion:null,yape_plin:g('yp'),n_op:$('nop').value.trim(),total_manual:g('tt')}};
+$('pdf').onclick=e=>ocupado(e.currentTarget,async()=>{
  if(!orden.length)return toast('No hay ventas registradas',1);
- const g=i=>{const v=$(i).value;return v===''?null:parseFloat(v)};
- const f={turno:$('turno').value,operador:$('op').value.trim(),color:g('c'),a3:g('a3'),scan:g('sc'),espiral:g('es'),impresion:g('im'),yape_plin:g('yp'),n_op:$('nop').value.trim(),total_manual:g('tt')};
- if(!confirm('Se cerrará la caja del día (la orden quedará vacía) y se generará el PDF. ¿Continuar?'))return;
+ try{medidas()}catch(err){return toast(err.message+'. Revisa los márgenes en Ajustes.',1)}
+ const un=orden.reduce((a,i)=>a+i.cantidad,0),lib=orden.reduce((a,i)=>a+i.cantidad*i.precio_unitario,0);
+ const f=leerCierre();
+ if(!confirm('Cerrar caja — turno '+f.turno+'\n\n'+orden.length+' productos ('+un+' unidades)\nLibrería: S/ '+lib.toFixed(2)+'\n\nLa orden quedará vacía y se generará el PDF. ¿Continuar?'))return;
  const{data,error}=await sb.rpc('caja_cerrar',{p:f});
  if(error)return toast(error.message,1);
  try{hacerPdf(data.items,f)}catch(e){toast('Caja cerrada, pero falló el PDF: '+e.message,1)}
- cargarOrden();toast('Caja cerrada')};
+ await animarCierre(f,lib);cargarOrden();toast('Caja cerrada')});
 
-function hacerPdf(items,f){
- const d=new window.jspdf.jsPDF({unit:'pt',format:'a4'}),W=595.28,H=841.89,L=99.21,R=28.35,T=85.04,B=85.04,RH=15,GAP=18;
+// Sello "CAJA CERRADA" que cae sobre el recibo, las líneas salen y el total baja a 0
+async function animarCierre(f,lib){
+ const r=$('rec'),l=$('lineas'),esp=ms=>new Promise(ok=>setTimeout(ok,matchMedia('(prefers-reduced-motion:reduce)').matches?0:ms));
+ animando=true;r.scrollIntoView({behavior:'smooth',block:'center'});
+ const s=h('div',{className:'sello'},'CAJA CERRADA',h('small',{textContent:fechaES(new Date())+' · '+f.turno}));
+ r.append(s);void s.offsetWidth;s.classList.add('on');r.classList.add('cerrado','golpe');
+ await esp(330);navigator.vibrate&&navigator.vibrate([30,40,60]);
+ await esp(1100);
+ [...l.children].forEach((c,k)=>c.style.animationDelay=Math.min(k*45,500)+'ms');l.classList.add('sale');
+ // setTimeout y no requestAnimationFrame: así termina aunque la app quede en segundo plano
+ const t0=performance.now(),dur=700,tot=$('total');
+ await new Promise(ok=>{const paso=()=>{const p=Math.min((performance.now()-t0)/dur,1);tot.textContent='S/ '+(lib*(1-p)*(1-p)).toFixed(2);p<1?setTimeout(paso,16):ok()};paso()});
+ await esp(250);
+ orden=[];pintar();animando=false;l.classList.remove('sale');r.classList.remove('cerrado','golpe');
+ setTimeout(()=>{s.classList.add('off');setTimeout(()=>s.remove(),450)},900)}
+
+// Medidas de la página según Ajustes. El diseño original es para A4; s lo escala al papel elegido.
+function medidas(){
+ const[W,H]=PAPEL[cfg.papel]||PAPEL.A5,s=cfg.escala==='auto'?W/PAPEL.A4[0]:cfg.escala/100,a=cfg.h1,b=cfg.h2;
+ const L=a.izq*CM,T=a.sup*CM,RH=15*s,GAP=18*s,bw=(W-L-a.der*CM-GAP)/2,mr=Math.floor((H-T-a.inf*CM-30*s)/RH);
+ if(bw<60*s||mr<3)throw Error('Los márgenes de la hoja 1 dejan muy poco espacio para la tabla');
+ const L2=b.izq*CM,R2=W-b.der*CM,T2=b.sup*CM;
+ if(R2-L2<200*s||H-b.inf*CM-T2<300*s)throw Error('Los márgenes de la hoja 2 dejan muy poco espacio para el resumen');
+ return{W,H,s,L,T,RH,GAP,bw,mr,L2,R2,T2}}
+
+// Ordena las líneas por página del Kardex (como el cuaderno físico); sin página van al final
+function ordenKardex(items){
+ const porId=new Map(cat.map(p=>[p.id,p.pg])),porNom=new Map(cat.map(p=>[p._n,p.pg]));
+ const pg=i=>{const v=porId.has(i.producto_id)?porId.get(i.producto_id):porNom.get(norm(i.nombre));return v==null||v===''?Infinity:Number(v)};
+ return items.map(i=>[pg(i),i]).sort((a,b)=>a[0]-b[0]||a[1].nombre.localeCompare(b[1].nombre,'es')).map(x=>x[1])}
+
+function hacerPdf(items,f,vista){
+ const{W,H,s,L,T,RH,GAP,bw,mr,L2,R2,T2}=medidas();items=ordenKardex(items);
+ const d=new window.jspdf.jsPDF({unit:'pt',format:[W,H]});d.setLineWidth(.6*s);
  const tot=Math.round(items.reduce((a,i)=>a+Number(i.subtotal),0)*100)/100;
- const bw=(W-L-R-GAP)/2,cw=[.5556,.1605,.2839].map(x=>Math.round(bw*x));cw[2]+=Math.round(bw)-cw[0]-cw[1]-cw[2];
- const mr=Math.max(Math.floor((H-T-B-40)/RH),5);
- const bloque=(x,its)=>{d.setFont('helvetica','normal');d.setFontSize(8.5);
-  for(let i=0;i<mr;i++){const y=T+i*RH,it=its[i];
-   if(it){let cx=x;[d.splitTextToSize(it.nombre,cw[0]-6)[0],String(Math.round(it.cantidad)),'S/ '+Number(it.subtotal).toFixed(2)].forEach((v,k)=>{d.text(v,cx+3,y+RH-4);cx+=cw[k]})}
+ const cw=[.5556,.1605,.2839].map(x=>bw*x);
+ // Recorta el nombre por letras (con …) para que quepa en su columna
+ const recorta=(t,w)=>{if(d.getTextWidth(t)<=w)return t;while(t.length>1&&d.getTextWidth(t+'…')>w)t=t.slice(0,-1);return t.trimEnd()+'…'};
+ // Dibuja una columna de la tabla; con soloOcupadas solo las filas que tienen producto
+ const bloque=(x,its,T,mr)=>{const n=cfg.soloOcupadas?its.length:mr;if(!n)return;
+  d.setFont('helvetica','normal');d.setFontSize(8.5*s);
+  for(let i=0;i<n;i++){const y=T+i*RH,it=its[i];
+   if(it){let cx=x;[recorta(it.nombre,cw[0]-6*s),String(Math.round(it.cantidad)),'S/ '+Number(it.subtotal).toFixed(2)].forEach((v,k)=>{d.text(v,cx+3*s,y+RH-4*s);cx+=cw[k]})}
    d.line(x,y+RH,x+bw,y+RH)}
-  d.line(x,T,x+bw,T);let cx=x;[0,...cw].forEach(w=>{cx+=w;d.line(cx,T,cx,T+RH*mr)})};
+  d.line(x,T,x+bw,T);let cx=x;[0,...cw].forEach(w=>{cx+=w;d.line(cx,T,cx,T+RH*n)})};
  let rest=items.slice(),first=true;
  for(;;){
-  if(!first){d.addPage();d.setFont('helvetica','italic');d.setFontSize(8);d.text('(continuación)',L,T-14)}
-  bloque(L,rest.slice(0,mr));bloque(L+bw+GAP,rest.slice(mr,2*mr));rest=rest.slice(2*mr);first=false;
-  if(!rest.length){d.setFont('helvetica','bold');d.setFontSize(11);d.text('TOTAL : S/ '+tot.toFixed(2),L,T+RH*mr+22);break}}
- // Hoja 2
- d.addPage();const cx=W/2,LX=55,RX=W-55,y=193,fa=26,m=(v,s=1)=>v==null?'':(s?'S/ ':'')+v.toFixed(2);
- d.setFont('helvetica','bold');d.setFontSize(18);d.text('SENATI',cx,90,{align:'center'});
- d.setFont('helvetica','normal');d.setFontSize(14);d.text(fechaES(new Date()),cx,116,{align:'center'});
- d.setFontSize(12);d.text('Turno: '+f.turno+(f.operador?' — '+f.operador:''),cx,138,{align:'center'});
- d.text('Librería: S/ '+tot.toFixed(2),LX,y);d.text('Color: '+m(f.color),LX,y+fa);
- d.text('A3 : '+m(f.a3,0),LX,y+2*fa);d.text('Scan : '+m(f.scan,0),LX,y+3*fa);
- d.text('Espiral : '+m(f.espiral,0),LX,y+4*fa);d.text('Impresión : '+m(f.impresion,0),LX,y+5*fa);
- d.text('YAPE/PLIN',RX,y,{align:'right'});d.text(m(f.yape_plin)||'S/',RX,y+fa,{align:'right'});
- d.text('N° OP.',RX,y+2*fa,{align:'right'});d.text(f.n_op||'',RX,y+3*fa,{align:'right'});
- d.setFont('helvetica','bold');d.setFontSize(15);d.text('TOTAL : '+(m(f.total_manual)||'____________'),cx,y+5*fa+60,{align:'center'});
- d.save('SENATI_CAJA_'+new Date().toISOString().slice(0,19).replace(/[-:T]/g,'')+'.pdf')}
+  // En páginas de continuación el aviso ocupa la primera fila, para no salirse del margen
+  if(!first){d.addPage();d.setFont('helvetica','italic');d.setFontSize(8*s);d.text('(continuación)',L,T+RH-4*s)}
+  const t=first?T:T+RH,m=first?mr:mr-1,izq=rest.slice(0,m);
+  bloque(L,izq,t,m);bloque(L+bw+GAP,rest.slice(m,2*m),t,m);rest=rest.slice(2*m);first=false;
+  if(!rest.length){const filas=cfg.soloOcupadas?izq.length:m;
+   d.setFont('helvetica','bold');d.setFontSize(11*s);d.text('TOTAL : S/ '+tot.toFixed(2),L,t+RH*filas+22*s);break}}
+ // Hoja 2: resumen dentro del área que dejan sus márgenes
+ // Solo se imprimen los montos ingresados; "Impresión" va siempre al final y en blanco (se llena a mano)
+ d.addPage();const cx=(L2+R2)/2,y0=T2+18*s,y=y0+103*s,fa=26*s,m=(v,sim=1)=>(sim?'S/ ':'')+v.toFixed(2);
+ d.setFont('helvetica','bold');d.setFontSize(18*s);d.text('SENATI',cx,y0,{align:'center'});
+ d.setFont('helvetica','normal');d.setFontSize(14*s);d.text(fechaES(new Date()),cx,y0+26*s,{align:'center'});
+ d.setFontSize(12*s);d.text('Turno: '+f.turno+(f.operador?' — '+f.operador:''),cx,y0+48*s,{align:'center'});
+ const izq=['Librería: S/ '+tot.toFixed(2)],der=[];
+ [['Color: ',f.color,1],['A3 : ',f.a3,0],['Scan : ',f.scan,0],['Espiral : ',f.espiral,0]].forEach(([t,v,sim])=>{if(v!=null)izq.push(t+m(v,sim))});
+ izq.push('Impresión :');
+ if(f.yape_plin!=null)der.push('YAPE/PLIN',m(f.yape_plin));
+ if(f.n_op)der.push('N° OP.',f.n_op);
+ izq.forEach((t,k)=>d.text(t,L2,y+k*fa));der.forEach((t,k)=>d.text(t,R2,y+k*fa,{align:'right'}));
+ if(f.total_manual!=null){d.setFont('helvetica','bold');d.setFontSize(15*s);
+  d.text('TOTAL : '+m(f.total_manual),cx,y+(Math.max(izq.length,der.length)-1)*fa+60*s,{align:'center'})}
+ if(vista){if(!window.open(d.output('bloburl'),'_blank'))toast('Permite las ventanas emergentes para ver la vista previa',1)}
+ else d.save('SENATI_CAJA_'+new Date().toISOString().slice(0,19).replace(/[-:T]/g,'')+'.pdf')}
 
 document.querySelectorAll('#app input[step]').forEach(i=>i.inputMode='decimal');
 $('cierre').open=!matchMedia('(max-width:860px)').matches;

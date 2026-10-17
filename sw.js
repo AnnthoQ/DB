@@ -1,6 +1,6 @@
 // Service worker: permite instalar la app y abrirla aunque falle la red.
 // Sube el número de versión cada vez que quieras forzar la actualización.
-const CACHE = 'caja-senati-v1';
+const CACHE = 'caja-senati-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 const CDN = ['cdn.jsdelivr.net', 'cdnjs.cloudflare.com'];
 
