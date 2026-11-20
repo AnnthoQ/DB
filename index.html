@@ -15,10 +15,12 @@ try{if(JSON.parse(localStorage.getItem('cfg')||'{}').tema==='claro')document.doc
 /* ---- Tema oscuro (por defecto) ---- */
 :root{--bg:#14110F;--paper:#1E1A17;--ink:#EDE6DA;--soft:#A39A8E;--line:#3A332D;--field:#27221E;--receipt:#1A1715;
  --stamp:#C8462B;--stamp-ink:#F07A5C;--on-stamp:#fff;--btn:#EDE6DA;--on-btn:#14110F;
+ --ok:#7FC495;--warn:#E3B04B;--sync:#72B4EA;
  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.28);color-scheme:dark}
 /* ---- Tema claro ---- */
 :root[data-theme=light]{--bg:#EDE5D3;--paper:#F6F1E7;--ink:#241F1C;--soft:#5B5349;--line:#D9CDB5;--field:#fff;--receipt:#FFFDF8;
  --stamp:#A8341F;--stamp-ink:#A8341F;--on-stamp:#fff;--btn:#241F1C;--on-btn:#F6F1E7;
+ --ok:#2D7A48;--warn:#8F6200;--sync:#2A679E;
  --shadow:0 1px 2px rgba(36,31,28,.08),0 6px 18px rgba(36,31,28,.06);color-scheme:light}
 *{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
@@ -74,6 +76,12 @@ button:disabled{opacity:.5;cursor:wait}
 .toast button{margin-left:12px;background:none;border:1px solid currentColor;color:inherit;padding:4px 10px;min-height:0}
 summary{font-weight:600;font-size:.95rem;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:32px}
 summary::-webkit-details-marker{display:none}summary::after{content:'▾';font-size:1.2rem;transition:transform .2s;color:var(--soft)}details[open]>summary::after{transform:rotate(180deg)}
+/* ---- Borrador del cierre: estado de guardado y cambios desde otro dispositivo ---- */
+.bst{margin-left:auto;margin-right:10px;display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:500;color:var(--soft);white-space:nowrap}
+.bst::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.bst.ok{color:var(--ok)}.bst.warn{color:var(--warn)}.bst.sync{color:var(--sync)}
+.remoto{animation:remoto 1.8s ease-out}
+@keyframes remoto{0%,40%{border-color:var(--sync);box-shadow:0 0 0 2px var(--sync)}100%{box-shadow:0 0 0 2px transparent}}
 /* ---- Ajustes ---- */
 dialog{border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);padding:0;width:min(580px,calc(100vw - 24px));max-height:calc(100dvh - 24px);box-shadow:var(--shadow)}
 dialog::backdrop{background:rgba(0,0,0,.6)}
@@ -136,7 +144,7 @@ input[type=checkbox]{width:20px;height:20px;min-height:0;accent-color:var(--stam
   <section>
    <div class="recibo" id="rec"><div style="text-align:center;margin-bottom:8px" class="meta" id="rf"></div>
     <div id="lineas"></div><div class="tot"><span>TOTAL</span><b id="total">S/ 0.00</b></div></div>
-   <details class="panel" id="cierre"><summary>Cerrar caja</summary><div class="g2" style="margin-top:14px">
+   <details class="panel" id="cierre"><summary>Cerrar caja<span class="bst" id="bst" role="status" aria-live="polite" hidden></span></summary><div class="g2" style="margin-top:14px">
     <div><label for="turno">Turno</label><select id="turno"><option>Mañana</option><option>Tarde</option></select></div>
     <div><label for="op">Operador</label><input id="op"></div>
     <div><label for="c">Color S/</label><input id="c" type="number" step="0.01" min="0"></div>
@@ -237,14 +245,17 @@ async function entrar(){
 let cat=[],orden=[],canal=null,tmr=null,animando=false;
 async function iniciar(){
  cat=prep((await idb.get('cat'))||[]);buscar();
- await sync();await cargarOrden();
- if(!canal)canal=sb.channel('caja').on('postgres_changes',{event:'*',schema:'public',table:'caja_items'},cargarOrden).subscribe();
+ await sync();await cargarOrden();await cargarBorrador();
+ // Al (re)conectarse el tiempo real se vuelve a leer el borrador, por si hubo cambios mientras estaba desconectado
+ if(!canal)canal=sb.channel('caja').on('postgres_changes',{event:'*',schema:'public',table:'caja_items'},cargarOrden)
+  .on('postgres_changes',{event:'UPDATE',schema:'public',table:'caja_borrador'},onBorrador)
+  .subscribe(st=>{if(st==='SUBSCRIBED')cargarBorrador()});
  if(!tmr)tmr=setInterval(()=>sync(),300000)}
 async function sync(manual){
  const{data,error}=await sb.from('productos').select('id,producto,precio,pg').order('producto');
  if(error)return toast('Catálogo: '+error.message,1);
  cat=prep(data);await idb.set('cat',data);buscar();if(manual)toast('Catálogo actualizado ('+data.length+')')}
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!$('app').hidden)sync()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!$('app').hidden){sync();cargarBorrador()}});
 function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i,...Array(b.length).fill(0)]);for(let j=0;j<=b.length;j++)d[0][j]=j;
  for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]:1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);return d[a.length][b.length]}
 const lq=()=>{$('q').value='';buscar()};
@@ -328,6 +339,65 @@ $('cfgPrev').onclick=()=>{
   :Array.from({length:12},(_,k)=>({nombre:'Producto de ejemplo '+(k+1),cantidad:k%3+1,subtotal:(k%3+1)*1.5}));
  try{hacerPdf(its,leerCierre(),true)}catch(e){toast(e.message,1)}};
 
+// ---- Borrador del cierre: los campos se guardan y se sincronizan entre dispositivos ----
+// Cada campo se guarda por separado (gana el último) y nunca se reemplaza el campo que se está escribiendo.
+const CAMPOS={turno:'turno',op:'operador',c:'color',a3:'a3',sc:'scan',es:'espiral',yp:'yape_plin',nop:'n_op',tt:'total_manual'};
+const ORIGEN=crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2);   // este dispositivo: para ignorar su propio eco
+const bTimer={},bPend={};   // bPend: valores de otro dispositivo que llegaron mientras el campo estaba en uso
+let bCola={},bEnVuelo=false,cerrando=false;   // bCola: cambios locales aún sin guardar (sobreviven a recargas y cortes de red)
+try{bCola=JSON.parse(localStorage.getItem('borradorCola')||'{}')}catch(e){}
+const guardarCola=()=>{try{localStorage.setItem('borradorCola',JSON.stringify(bCola))}catch(e){}};
+const ESTADOS={guardando:['Guardando…',''],ok:['Guardado','ok'],offline:['Sin conexión','warn'],error:['No se guardó','warn'],remoto:['Actualizado en otro dispositivo','sync']};
+let tEst;
+function estadoB(t){const s=$('bst'),[txt,cl]=ESTADOS[t];clearTimeout(tEst);s.hidden=false;s.textContent=txt;s.className='bst '+cl;
+ s.title=t==='offline'?'Se guardará al volver la conexión':'';
+ if(t==='remoto')tEst=setTimeout(()=>estadoB(pendiente()?'guardando':'ok'),2500)}
+// Hay cambios locales sin confirmar: escribiendo, en cola o enviándose
+const pendiente=()=>bEnVuelo||Object.keys(bTimer).length>0||Object.keys(bCola).length>0;
+const vacio=el=>el.tagName==='SELECT'?el.options[0].value:'';
+function ponerCampo(id,v,resaltar){const el=$(id),nv=v??vacio(el);
+ if(el===document.activeElement){bPend[id]=nv;return}
+ delete bPend[id];if(el.value===nv)return;el.value=nv;
+ if(resaltar){el.classList.remove('remoto');void el.offsetWidth;el.classList.add('remoto')}}
+// Los campos con cambios locales pendientes no se pisan: se guardarán encima (gana el último)
+const aplicarBorrador=(datos,resaltar)=>{for(const[id,k]of Object.entries(CAMPOS))if(!(k in bCola)&&!(id in bTimer))ponerCampo(id,datos[k],resaltar)};
+async function cargarBorrador(){
+ const{data,error}=await sb.from('caja_borrador').select('datos').eq('id',1).maybeSingle();
+ if(error||!data)return;aplicarBorrador(data.datos||{},false);
+ if(Object.keys(bCola).length)enviarCola();else if(!bEnVuelo)estadoB('ok')}
+function onBorrador(p){const n=p.new||{};if(n.origen===ORIGEN)return;
+ const datos=n.datos||{};
+ // origen vacío y sin datos = se cerró la caja en otro dispositivo: lo pendiente aquí ya quedó en ese cierre
+ if(n.origen==null&&!Object.keys(datos).length){bCola={};guardarCola();aplicarBorrador({},false);return estadoB('ok')}
+ aplicarBorrador(datos,true);
+ // Si aquí hay cambios sin guardar, el indicador sigue diciendo "Guardando…" para no dar una falsa confirmación
+ estadoB(pendiente()?'guardando':'remoto')}
+const reintentable=e=>!navigator.onLine||!e.code||/fetch|network|timeout/i.test(e.message||'');
+async function enviarCola(){
+ if(bEnVuelo||cerrando||!Object.keys(bCola).length)return;
+ bEnVuelo=true;estadoB('guardando');let fallo=false;
+ try{
+  for(const[k,v]of Object.entries(bCola)){
+   const{error}=await sb.rpc('caja_borrador_set',{p_campo:k,p_valor:v,p_origen:ORIGEN});
+   if(error){if(reintentable(error)){estadoB('offline');return}
+    fallo=true;toast('No se pudo guardar un campo del cierre. Revísalo.',1)}
+   if(bCola[k]===v){delete bCola[k];guardarCola()}   // si cambió mientras se enviaba, va en la siguiente vuelta
+  }
+ }finally{bEnVuelo=false}
+ if(Object.keys(bCola).length)return enviarCola();
+ estadoB(fallo?'error':'ok')}
+function encolar(id){clearTimeout(bTimer[id]);delete bTimer[id];bCola[CAMPOS[id]]=$(id).value.trim();guardarCola();enviarCola()}
+for(const id of Object.keys(CAMPOS)){const el=$(id);
+ el.addEventListener('input',()=>{estadoB('guardando');clearTimeout(bTimer[id]);bTimer[id]=setTimeout(()=>encolar(id),600)});
+ el.addEventListener('change',()=>encolar(id));   // al salir del campo o elegir en la lista se guarda al instante
+ // Al soltar un campo sin cambios, se muestra lo que llegó de otro dispositivo mientras estaba en uso
+ el.addEventListener('blur',()=>{if(id in bPend&&!(id in bTimer)&&!(CAMPOS[id] in bCola)){const v=bPend[id];delete bPend[id];ponerCampo(id,v,true)}})}
+addEventListener('online',enviarCola);
+setInterval(()=>{if(!$('app').hidden&&Object.keys(bCola).length)enviarCola()},15000);
+function vaciarBorrador(){
+ for(const id of Object.keys(CAMPOS)){clearTimeout(bTimer[id]);delete bTimer[id];delete bPend[id];$(id).value=vacio($(id))}
+ bCola={};guardarCola();estadoB('ok')}
+
 // ---- Cierre + PDF ----
 const leerCierre=()=>{const g=i=>{const v=$(i).value;return v===''?null:parseFloat(v)};
  return{turno:$('turno').value,operador:$('op').value.trim(),color:g('c'),a3:g('a3'),scan:g('sc'),espiral:g('es'),impresion:null,yape_plin:g('yp'),n_op:$('nop').value.trim(),total_manual:g('tt')}};
@@ -337,8 +407,13 @@ $('pdf').onclick=e=>ocupado(e.currentTarget,async()=>{
  const un=orden.reduce((a,i)=>a+i.cantidad,0),lib=orden.reduce((a,i)=>a+i.cantidad*i.precio_unitario,0);
  const f=leerCierre();
  if(!confirm('Cerrar caja — turno '+f.turno+'\n\n'+orden.length+' productos ('+un+' unidades)\nLibrería: S/ '+lib.toFixed(2)+'\n\nLa orden quedará vacía y se generará el PDF. ¿Continuar?'))return;
- const{data,error}=await sb.rpc('caja_cerrar',{p:f});
- if(error)return toast(error.message,1);
+ // Pausa el guardado del borrador y espera el envío en curso, para que ningún valor viejo reaparezca tras el cierre
+ cerrando=true;let data;
+ try{for(let i=0;bEnVuelo&&i<50;i++)await new Promise(r=>setTimeout(r,100));
+  const r=await sb.rpc('caja_cerrar',{p:f});
+  if(r.error)return toast(r.error.message,1);
+  data=r.data;vaciarBorrador()}   // caja_cerrar ya vació el borrador en la base; aquí se limpian los campos
+ finally{cerrando=false;enviarCola()}
  try{hacerPdf(data.items,f)}catch(e){toast('Caja cerrada, pero falló el PDF: '+e.message,1)}
  await animarCierre(f,lib);cargarOrden();toast('Caja cerrada')});
 
@@ -402,7 +477,7 @@ function hacerPdf(items,f,vista){
  d.setFont('helvetica','normal');d.setFontSize(14*s);d.text(fechaES(new Date()),cx,y0+26*s,{align:'center'});
  d.setFontSize(12*s);d.text('Turno: '+f.turno+(f.operador?' — '+f.operador:''),cx,y0+48*s,{align:'center'});
  const izq=['Librería: S/ '+tot.toFixed(2)],der=[];
- [['Color: ',f.color,1],['A3 : ',f.a3,0],['Scan : ',f.scan,0],['Espiral : ',f.espiral,0]].forEach(([t,v,sim])=>{if(v!=null)izq.push(t+m(v,sim))});
+ [['Color: ',f.color],['A3 : ',f.a3],['Scan : ',f.scan],['Espiral : ',f.espiral]].forEach(([t,v])=>{if(v!=null)izq.push(t+m(v))});
  izq.push('Impresión :');
  if(f.yape_plin!=null)der.push('YAPE/PLIN',m(f.yape_plin));
  if(f.n_op)der.push('N° OP.',f.n_op);
