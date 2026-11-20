@@ -67,6 +67,7 @@ Abre `http://localhost:8080`.
 ```
 DB/
 ├── index.html             # Interfaz, estilos y lógica (auth, búsqueda, caja, PDF)
+├── panel.html             # Panel de estadísticas para administradores (?demo = datos ficticios)
 ├── sw.js                  # Service Worker: caché del shell y librerías CDN
 ├── manifest.webmanifest   # Metadatos de instalación PWA
 ├── supabase/migrations/   # Cambios SQL aplicados al proyecto de Supabase

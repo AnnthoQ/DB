@@ -193,7 +193,7 @@ button.stamp,#fab{border-radius:999px;background-color:var(--accent)}
 
 <div id="app" class="wrap" hidden>
  <header><h1>Caja · <em>Librería SENATI</em></h1><div class="acc"><span class="sub" id="fecha"></span>
-  <button class="sec ico" id="cfg" title="Ajustes" aria-label="Ajustes">⚙</button><button class="sec" id="salir">Salir</button></div></header>
+  <button class="sec" id="pan" hidden>Panel</button><button class="sec ico" id="cfg" title="Ajustes" aria-label="Ajustes">⚙</button><button class="sec" id="salir">Salir</button></div></header>
  <button id="fab">REGISTRAR PRODUCTO</button>
  <div class="grid">
   <section class="panel" id="bus">
@@ -292,6 +292,7 @@ $('lg').onsubmit=e=>{e.preventDefault();ocupado(btnIn,async()=>{btnIn.textConten
   if(error)return toast(error.status===400||error.status===422?'Código o contraseña incorrectos':'El servidor no respondió a tiempo. Intenta de nuevo.',1);
   $('pw').value='';await entrar()}
  finally{btnIn.textContent='Ingresar'}})};
+$('pan').onclick=()=>location.href='panel.html';
 $('salir').onclick=async()=>{await idb.set('cat',null);if(canal){sb.removeChannel(canal);canal=null}await sb.auth.signOut();cat=[];orden=[];mostrar(false)};
 async function entrar(){
  const{data:{session}}=await sb.auth.getSession();if(!session)return mostrar(false);
@@ -301,6 +302,7 @@ async function entrar(){
  if(rol!=='admin'&&rol!=='trabajador'){await sb.auth.signOut();toast('Tu cuenta no tiene acceso a la caja',1);return mostrar(false)}
  // Solo un administrador puede asignar precios (trigger proteger_precio_producto), así que solo él ve el alta de productos
  $('tn').hidden=rol!=='admin';if(rol!=='admin')$('fa').hidden=true;
+ $('pan').hidden=rol!=='admin';   // el panel de estadísticas es solo para administradores
  mostrar(true);iniciar()}
 
 // ---- Catálogo: caché local + sincronización ----
