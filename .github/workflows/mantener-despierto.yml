@@ -1,0 +1,40 @@
+# Mantiene "despierto" el proyecto de Supabase en horario de atención.
+#
+# La instancia Nano del plan gratuito pasa su memoria a disco tras horas sin uso,
+# y el primer login tardaba 10-18 s. Este workflow llama cada 5 minutos a ping()
+# (lee las tablas del login y la caja) y al health de Auth.
+#
+# Horario: 6:00-21:00 de Lima (UTC-5) = 11:00-02:00 UTC.
+# GitHub puede retrasar los cron unos minutos y los desactiva si el repo pasa
+# 60 días sin actividad; en ese caso, reactívalo desde la pestaña Actions.
+
+name: Mantener Supabase despierto
+
+on:
+  schedule:
+    - cron: '*/5 11-23 * * *'
+    - cron: '*/5 0-1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: index.html
+          sparse-checkout-cone-mode: false
+
+      - name: Ping a Supabase
+        run: |
+          # URL y clave anon (pública) se leen de index.html para no duplicarlas
+          SB=$(grep -o "SB='[^']*'" index.html | cut -d"'" -f2)
+          KEY=$(grep -o "KEY='[^']*'" index.html | cut -d"'" -f2)
+          curl -fsS --max-time 30 -o /dev/null -w "auth health: HTTP %{http_code} en %{time_total}s\n" \
+            "$SB/auth/v1/health" -H "apikey: $KEY"
+          curl -fsS --max-time 30 -w "  <- ping() en %{time_total}s\n" -X POST \
+            "$SB/rest/v1/rpc/ping" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}'
