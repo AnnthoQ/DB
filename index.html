@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Caja · SENATI</title><meta name="theme-color" content="#14110F">
+<title>Caja · SENATI</title><meta name="theme-color" content="#000000">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -12,16 +12,24 @@
 <script>/* aplica el tema guardado antes de pintar, para que no parpadee */
 try{if(JSON.parse(localStorage.getItem('cfg')||'{}').tema==='claro')document.documentElement.dataset.theme='light'}catch(e){}</script>
 <style>
-/* ---- Tema oscuro (por defecto) ---- */
-:root{--bg:#14110F;--paper:#1E1A17;--ink:#EDE6DA;--soft:#A39A8E;--line:#3A332D;--field:#27221E;--receipt:#1A1715;
- --stamp:#C8462B;--stamp-ink:#F07A5C;--on-stamp:#fff;--btn:#EDE6DA;--on-btn:#14110F;
- --ok:#7FC495;--warn:#E3B04B;--sync:#72B4EA;
- --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.28);color-scheme:dark}
+/* ---- Tema oscuro (por defecto): negro, grises y azul de iOS ---- */
+:root{--bg:#000;--ink:#F5F5F7;--soft:#98989F;--line:rgba(255,255,255,.10);--field:rgba(118,118,128,.24);
+ --accent:#0A84FF;--danger:#FF453A;
+ --glass:rgba(30,30,32,.52);--glass-edge:rgba(255,255,255,.14);--glass-hi:rgba(255,255,255,.22);--glass-btn:rgba(120,120,128,.26);
+ --solid-card:#1C1C1E;--solid-btn:#2C2C2E;
+ --paper:var(--glass);--receipt:var(--glass);
+ --stamp:var(--accent);--stamp-ink:var(--accent);--on-stamp:#fff;--btn:var(--accent);--on-btn:#fff;
+ --ok:#30D158;--warn:#FFD60A;--sync:#64D2FF;
+ --glow-1:rgba(10,132,255,.38);--glow-2:rgba(100,210,255,.18);--glow-3:rgba(10,132,255,.16);
+ --shadow:0 10px 40px rgba(0,0,0,.45);color-scheme:dark}
 /* ---- Tema claro ---- */
-:root[data-theme=light]{--bg:#EDE5D3;--paper:#F6F1E7;--ink:#241F1C;--soft:#5B5349;--line:#D9CDB5;--field:#fff;--receipt:#FFFDF8;
- --stamp:#A8341F;--stamp-ink:#A8341F;--on-stamp:#fff;--btn:#241F1C;--on-btn:#F6F1E7;
- --ok:#2D7A48;--warn:#8F6200;--sync:#2A679E;
- --shadow:0 1px 2px rgba(36,31,28,.08),0 6px 18px rgba(36,31,28,.06);color-scheme:light}
+:root[data-theme=light]{--bg:#F2F2F7;--ink:#1C1C1E;--soft:#6C6C70;--line:rgba(60,60,67,.14);--field:rgba(118,118,128,.12);
+ --accent:#007AFF;--danger:#FF3B30;
+ --glass:rgba(255,255,255,.60);--glass-edge:rgba(255,255,255,.75);--glass-hi:rgba(255,255,255,.95);--glass-btn:rgba(255,255,255,.55);
+ --solid-card:#FFFFFF;--solid-btn:#E5E5EA;
+ --ok:#248A3D;--warn:#B25000;--sync:#0071E3;
+ --glow-1:rgba(0,122,255,.20);--glow-2:rgba(90,200,250,.20);--glow-3:rgba(0,122,255,.10);
+ --shadow:0 10px 30px rgba(0,0,0,.08);color-scheme:light}
 *{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
@@ -121,6 +129,60 @@ input[type=checkbox]{width:20px;height:20px;min-height:0;accent-color:var(--stam
  .toast{bottom:calc(92px + env(safe-area-inset-bottom))}
  #bus #lista{flex:1;overflow:auto;max-height:none}
 }
+/* ================= Estilo vidrio (iOS) =================
+   Va al final para dar forma a todo lo anterior. Sin desenfoque disponible o con
+   "reducir transparencia" activado, se usan superficies sólidas (bloques del final). */
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,sans-serif;letter-spacing:-.01em;
+ background:radial-gradient(70% 55% at 10% -5%,var(--glow-1),transparent 70%),
+            radial-gradient(45% 40% at 85% 30%,var(--glow-3),transparent 70%),
+            radial-gradient(60% 50% at 105% 105%,var(--glow-2),transparent 70%),var(--bg);
+ background-attachment:fixed}
+h1{font-weight:700;letter-spacing:-.02em}h1 em{color:var(--accent)}
+h2{letter-spacing:.04em}
+header{border-bottom:none}
+.sub,.meta{font-family:inherit;font-variant-numeric:tabular-nums}
+/* Tarjetas */
+.panel,.recibo,dialog{background:var(--glass);border:1px solid var(--glass-edge);border-radius:24px;
+ -webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);
+ box-shadow:inset 0 1px 0 var(--glass-hi),var(--shadow)}
+.recibo{font-family:inherit}
+.ln{border-bottom:1px solid var(--line)}.it{border-bottom:1px solid var(--line)}
+.tot b{color:var(--ink)}
+.dlg-h,.dlg-f{background:var(--solid-card);border-color:var(--line)}
+fieldset{border:1px solid var(--line);border-radius:16px}
+/* Campos: relleno gris, sin borde, anillo azul al enfocar */
+input,select{background:var(--field);border:1px solid transparent;border-radius:12px}
+input:hover,select:hover{border-color:transparent}
+input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
+/* Botones: azul principal con brillo, gris translúcido secundario, píldora en las acciones grandes */
+button{border-radius:14px;border:1px solid rgba(255,255,255,.18);background-color:var(--accent);color:#fff;
+ background-image:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 55%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent);
+ transition:transform .12s,filter .15s}
+button:hover{opacity:1;filter:brightness(1.08)}button:active{transform:scale(.97)}
+button.sec,button.sm{background-color:var(--glass-btn);background-image:none;color:var(--ink);border-color:var(--glass-edge);
+ -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);box-shadow:inset 0 1px 0 var(--glass-hi)}
+button.sm.x,button.link{background:none;box-shadow:none;border:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+button.sm.x{color:var(--soft)}
+button.link{color:var(--accent);text-decoration:none}
+button.sm{border-radius:10px}button.ico{border-radius:50%}
+button.stamp,#fab{border-radius:999px;background-color:var(--accent)}
+#fab{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 10px 30px color-mix(in srgb,var(--accent) 45%,transparent)}
+/* "Cerrar caja" en rojo: cierra el turno y no se puede deshacer (convención de iOS) */
+#pdf{background-color:var(--danger);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 14px color-mix(in srgb,var(--danger) 35%,transparent)}
+/* Sello y avisos */
+.sello{background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-radius:18px}
+.toast{border-radius:999px;background:var(--glass);color:var(--ink);border:1px solid var(--glass-edge);
+ -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%)}
+.toast.error{background:var(--danger);color:#fff}
+@media(max-width:860px){#bus{background:var(--bg)}}
+/* Sin transparencia: superficies sólidas en ambos temas */
+@media (prefers-reduced-transparency:reduce){
+ .panel,.recibo,dialog,.toast:not(.error){-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--solid-card)}
+ button.sec,button.sm:not(.x){-webkit-backdrop-filter:none;backdrop-filter:none;background-color:var(--solid-btn)}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+ .panel,.recibo,dialog,.toast:not(.error){background:var(--solid-card)}
+ button.sec,button.sm:not(.x){background-color:var(--solid-btn)}}
 </style></head><body>
 
 <div id="login" class="wrap"><div class="panel">
@@ -317,7 +379,7 @@ let cfg=clon(CFG0);
 try{const g=JSON.parse(localStorage.getItem('cfg')||'{}');cfg={...cfg,...g,h1:{...cfg.h1,...g.h1},h2:{...cfg.h2,...g.h2}}}catch(e){}
 const guardarCfg=()=>{try{localStorage.setItem('cfg',JSON.stringify(cfg))}catch(e){}};
 const aplicarTema=()=>{const cl=cfg.tema==='claro';document.documentElement.dataset.theme=cl?'light':'dark';
- document.querySelector('meta[name=theme-color]').content=cl?'#241F1C':'#14110F'};
+ document.querySelector('meta[name=theme-color]').content=cl?'#F2F2F7':'#000000'};
 aplicarTema();
 const campos=[...document.querySelectorAll('#ajustes [data-k]')];
 const getK=k=>k.split('.').reduce((o,p)=>o[p],cfg);
