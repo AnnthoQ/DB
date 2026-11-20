@@ -130,7 +130,7 @@ input[type=checkbox]{width:20px;height:20px;min-height:0;accent-color:var(--stam
    <h2>Buscar producto</h2>
    <div class="row"><input id="q" type="search" placeholder="Ej: impresión, espiral, A3…" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" aria-label="Buscar producto"></div>
    <div id="lista"></div>
-   <button class="link" id="tn">+ Agregar producto nuevo</button>
+   <button class="link" id="tn" hidden>+ Agregar producto nuevo</button>
    <div id="fa" hidden><div class="f3"><input id="np" placeholder="Nombre" aria-label="Nombre"><input id="pr" type="number" step="0.01" min="0" placeholder="Precio S/" aria-label="Precio"><input id="pgn" type="number" min="0" placeholder="PG" aria-label="Página Kardex"></div><button id="gp">Guardar producto</button></div>
   </section>
   <section>
@@ -223,7 +223,9 @@ async function entrar(){
  const{data:{session}}=await sb.auth.getSession();if(!session)return mostrar(false);
  const{data:ok}=await sb.rpc('es_operador');
  if(!ok){await sb.auth.signOut();toast('Tu cuenta no tiene acceso a la caja',1);return mostrar(false)}
- mostrar(true);iniciar()}
+ mostrar(true);iniciar();
+ // Solo un administrador puede asignar precios (trigger proteger_precio_producto), así que solo él ve el alta de productos
+ const{data:adm}=await sb.rpc('es_admin');$('tn').hidden=!adm;if(!adm)$('fa').hidden=true}
 
 // ---- Catálogo: caché local + sincronización ----
 let cat=[],orden=[],canal=null,tmr=null,animando=false;

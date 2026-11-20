@@ -69,6 +69,7 @@ DB/
 ├── index.html             # Interfaz, estilos y lógica (auth, búsqueda, caja, PDF)
 ├── sw.js                  # Service Worker: caché del shell y librerías CDN
 ├── manifest.webmanifest   # Metadatos de instalación PWA
+├── supabase/migrations/   # Cambios SQL aplicados al proyecto de Supabase
 ├── icon-192.png           # Íconos de la app
 ├── icon-512.png
 ├── icon-maskable-512.png
