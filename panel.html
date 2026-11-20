@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Panel · SENATI</title><meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>/* mismo tema que la caja (Ajustes), aplicado antes de pintar */
+try{if(JSON.parse(localStorage.getItem('cfg')||'{}').tema==='claro')document.documentElement.dataset.theme='light'}catch(e){}</script>
+<style>
+/* ---- Tokens: los mismos de la caja (index.html) ---- */
+:root{--bg:#000;--ink:#F5F5F7;--soft:#98989F;--line:rgba(255,255,255,.10);--field:rgba(118,118,128,.24);
+ --accent:#0A84FF;--danger:#FF453A;--ok:#30D158;--warn:#FFD60A;
+ --glass:rgba(30,30,32,.52);--glass-edge:rgba(255,255,255,.14);--glass-hi:rgba(255,255,255,.22);--glass-btn:rgba(120,120,128,.26);
+ --solid-card:#1C1C1E;--solid-btn:#2C2C2E;--tint:rgba(118,118,128,.18);
+ --glow-1:rgba(10,132,255,.38);--glow-2:rgba(100,210,255,.18);--glow-3:rgba(10,132,255,.16);
+ --shadow:0 10px 40px rgba(0,0,0,.45);color-scheme:dark}
+:root[data-theme=light]{--bg:#F2F2F7;--ink:#1C1C1E;--soft:#6C6C70;--line:rgba(60,60,67,.14);--field:rgba(118,118,128,.12);
+ --accent:#007AFF;--danger:#FF3B30;--ok:#248A3D;--warn:#B25000;
+ --glass:rgba(255,255,255,.60);--glass-edge:rgba(255,255,255,.75);--glass-hi:rgba(255,255,255,.95);--glass-btn:rgba(255,255,255,.55);
+ --solid-card:#FFFFFF;--solid-btn:#E5E5EA;--tint:rgba(118,118,128,.10);
+ --glow-1:rgba(0,122,255,.20);--glow-2:rgba(90,200,250,.20);--glow-3:rgba(0,122,255,.10);
+ --shadow:0 10px 30px rgba(0,0,0,.08);color-scheme:light}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;color:var(--ink);font:15px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,sans-serif;letter-spacing:-.01em;-webkit-font-smoothing:antialiased;
+ background:radial-gradient(70% 55% at 10% -5%,var(--glow-1),transparent 70%),radial-gradient(45% 40% at 85% 30%,var(--glow-3),transparent 70%),
+ radial-gradient(60% 50% at 105% 105%,var(--glow-2),transparent 70%),var(--bg);background-attachment:fixed}
+.wrap{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
+header .acc{display:flex;gap:8px;align-items:center}
+h1{font-size:1.25rem;margin:0;font-weight:700;letter-spacing:-.02em}h1 em{font-style:normal;color:var(--accent)}
+h2{font-size:.78rem;margin:0 0 10px;color:var(--soft);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.num{font-variant-numeric:tabular-nums}
+.soft{color:var(--soft)}
+/* Vidrio */
+.card,dialog{background:var(--glass);border:1px solid var(--glass-edge);border-radius:22px;padding:16px;
+ -webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);box-shadow:inset 0 1px 0 var(--glass-hi),var(--shadow)}
+button,.btn{font:600 .85rem/1.2 inherit;font-family:inherit;cursor:pointer;border-radius:14px;border:1px solid rgba(255,255,255,.18);
+ background-color:var(--accent);color:#fff;padding:9px 14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+ background-image:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0) 55%);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent);transition:transform .12s,filter .15s}
+button:hover,.btn:hover{filter:brightness(1.08)}button:active,.btn:active{transform:scale(.97)}
+button:focus-visible,.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:disabled{opacity:.5;cursor:wait}
+.sec{background-color:var(--glass-btn);background-image:none;color:var(--ink);border-color:var(--glass-edge);
+ -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);box-shadow:inset 0 1px 0 var(--glass-hi)}
+.peligro{background-color:var(--danger);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 14px color-mix(in srgb,var(--danger) 35%,transparent)}
+.mini{padding:5px 10px;font-size:.78rem;border-radius:10px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--field);border:1px solid transparent;border-radius:12px;padding:8px 11px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
+/* Filtros */
+.filtros{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:var(--glass-btn);background-image:none;color:var(--ink);border:1px solid var(--glass-edge);box-shadow:none;border-radius:999px;padding:7px 13px;font-weight:500;flex-shrink:0;white-space:nowrap}
+.chip[aria-pressed=true]{background-color:var(--accent);color:#fff;border-color:transparent}
+.filtros .der{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.periodo{font-size:.8rem;color:var(--soft);margin:-4px 0 12px}
+/* Alertas */
+.alerta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-radius:16px;margin-bottom:12px;font-size:.88rem;
+ background:color-mix(in srgb,var(--warn) 16%,transparent);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent)}
+.alerta .btn{margin-left:auto}
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.k{padding:14px 16px}
+.k .l{font-size:.75rem;color:var(--soft);font-weight:500}
+.k .v{font-size:1.45rem;font-weight:700;letter-spacing:-.02em;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.k .s{font-size:.75rem;color:var(--soft);font-variant-numeric:tabular-nums}
+.sube{color:var(--ok)}.baja{color:var(--danger)}
+/* Gráficas */
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:12px;margin-bottom:12px}
+.cv{position:relative;height:240px}
+.rub{list-style:none;padding:0;margin:12px 0 0;font-size:.85rem}
+.rub li{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.rub .dot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+.rub .n{flex:1}.rub .t{width:1.2em;text-align:center}
+.tag{font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.tag.lider{background:color-mix(in srgb,var(--accent) 22%,transparent);color:var(--accent)}
+.tag.ok{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.tag.warn{background:color-mix(in srgb,var(--warn) 22%,transparent);color:var(--warn)}
+.tag.gris{background:var(--tint);color:var(--soft)}
+.tag.mal{background:color-mix(in srgb,var(--danger) 20%,transparent);color:var(--danger)}
+.tabs{display:flex;gap:4px;padding:4px;background:var(--tint);border-radius:12px;margin-bottom:12px;overflow-x:auto}
+.tabs button{background:none;box-shadow:none;border:none;color:var(--soft);border-radius:9px;padding:7px 12px;white-space:nowrap;font-weight:600}
+.tabs button[aria-selected=true]{background:var(--solid-card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.resumen{font-size:.82rem;color:var(--soft);margin:0 0 8px;font-variant-numeric:tabular-nums}
+.vacio{display:grid;place-items:center;height:100%;color:var(--soft);font-size:.9rem;text-align:center;padding:0 12px}
+/* Bitácora */
+.bh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}.bh h2{margin:0;flex:1}
+.tabla{overflow-x:auto;margin:0 -16px;padding:0 16px}
+table{width:100%;min-width:980px;border-collapse:collapse;font-size:.82rem;font-variant-numeric:tabular-nums}
+th{text-align:right;font-weight:500;color:var(--soft);font-size:.72rem;padding:6px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{text-align:right;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:nth-child(-n+2),td:nth-child(-n+2){text-align:left}
+th:nth-last-child(-n+2),td:nth-last-child(-n+2){text-align:left}
+tr.fuera td{color:var(--soft)}
+td .acc{display:flex;gap:6px}
+/* Diálogos y avisos */
+dialog{color:var(--ink);padding:0;width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 24px)}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.dh{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.db{padding:16px 18px;overflow:auto;max-height:60dvh}.df{display:flex;gap:8px;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line)}
+.det{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:.88rem;margin-bottom:12px;font-variant-numeric:tabular-nums}
+.det span{color:var(--soft)}
+textarea{width:100%;min-height:80px;resize:vertical}
+.err{color:var(--danger);font-size:.8rem;margin:6px 0 0}
+.toast{z-index:30;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 16px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;
+ background:var(--glass);color:var(--ink);border:1px solid var(--glass-edge);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%)}
+.toast.show{opacity:1}.toast.error{background:var(--danger);color:#fff}
+.bloqueo{max-width:420px;margin:12vh auto 0;text-align:center}.bloqueo p{color:var(--soft)}
+.demo{font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--warn);color:#000;margin-left:8px;vertical-align:middle}
+.cargando{opacity:.55;transition:opacity .2s}
+@media(max-width:860px){
+ .kpis{grid-template-columns:1fr 1fr}.kpis .k:first-child{grid-column:1/-1}
+ .g2{grid-template-columns:1fr}
+ .chips{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px}
+ .filtros .der{margin-left:0;width:100%}.filtros .der>*{flex:1}
+ .cv{height:220px}
+}
+/* Sin transparencia o sin desenfoque: superficies sólidas */
+@media (prefers-reduced-transparency:reduce){.card,dialog,.toast:not(.error){-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--solid-card)}.sec,.chip:not([aria-pressed=true]){-webkit-backdrop-filter:none;backdrop-filter:none;background-color:var(--solid-btn)}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.card,dialog,.toast:not(.error){background:var(--solid-card)}.sec,.chip:not([aria-pressed=true]){background-color:var(--solid-btn)}}
+</style></head><body>
+
+<div id="bloqueo" class="wrap"><div class="card bloqueo"><h1>Panel · <em>SENATI</em></h1><p id="bloqueoMsg">Cargando…</p>
+ <a class="btn" href="index.html" id="bloqueoIr" hidden>Ir a la caja</a></div></div>
+
+<div id="panel" class="wrap" hidden>
+ <header><h1>Panel · <em>SENATI</em><span class="demo" id="demoTag" hidden>MODO DEMO</span></h1>
+  <div class="acc"><a class="btn sec" href="index.html">Caja</a><button class="sec" id="salir">Salir</button></div></header>
+
+ <div class="filtros">
+  <div class="chips" role="group" aria-label="Periodo">
+   <button class="chip" data-r="hoy">Hoy</button><button class="chip" data-r="ayer">Ayer</button>
+   <button class="chip" data-r="7">7 días</button><button class="chip" data-r="14">14 días</button>
+   <button class="chip" data-r="30">30 días</button><button class="chip" data-r="mes">Este mes</button>
+  </div>
+  <div class="der">
+   <input type="date" id="fecha" aria-label="Fecha puntual">
+   <select id="opSel" aria-label="Operador"><option value="">Todos los operadores</option></select>
+   <button class="sec" id="csv">Exportar CSV</button>
+  </div>
+ </div>
+ <p class="periodo" id="periodoTxt"></p>
+ <div class="alerta" id="alerta" role="status" hidden></div>
+
+ <main id="contenido">
+  <section class="kpis" id="kpis" aria-label="Indicadores"></section>
+
+  <div class="g2">
+   <section class="card"><h2 id="rubT">Rubros</h2><div class="cv"><canvas id="cRub" aria-label="Monto por rubro"></canvas></div><ul class="rub" id="rubList"></ul></section>
+   <section class="card"><h2 id="evoT">Evolución de la venta</h2><div class="cv"><canvas id="cEvo" aria-label="Venta diaria con promedio"></canvas></div></section>
+  </div>
+
+  <section class="card" style="margin-bottom:12px">
+   <div class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-t="comp">Composición por rubro</button>
+    <button role="tab" aria-selected="false" data-t="pago">Yape vs efectivo</button>
+    <button role="tab" aria-selected="false" data-t="var">Vs. mismo día de semana</button>
+   </div>
+   <p class="resumen" id="tabRes"></p>
+   <div class="cv" style="height:260px"><canvas id="cTab" aria-label="Gráfica secundaria"></canvas></div>
+  </section>
+
+  <section class="card">
+   <div class="bh"><h2>Bitácora de cierres</h2>
+    <select id="estSel" aria-label="Filtrar por estado"><option value="todos">Todos</option><option value="completo">Completos</option>
+     <option value="obs">Observados</option><option value="excluido">Excluidos</option><option value="anulado">Anulados</option></select></div>
+   <div class="tabla"><table><thead><tr><th>Fecha</th><th>Operador</th><th>Librería</th><th>Color</th><th>A3</th><th>Scan</th><th>Espiral</th>
+    <th>Yape/Plin</th><th>N° op.</th><th>Efectivo</th><th>Venta</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tb"></tbody></table></div>
+  </section>
+ </main>
+</div>
+
+<dialog id="dlgDet" aria-labelledby="detT"><div class="dh"><h1 id="detT" style="font-size:1.05rem">Cierre</h1><button class="sec mini" data-cerrar>Cerrar</button></div>
+ <div class="db" id="detB"></div><div class="df" id="detF"></div></dialog>
+<dialog id="dlgAnu" aria-labelledby="anuT"><div class="dh"><h1 id="anuT" style="font-size:1.05rem">Anular cierre</h1><button class="sec mini" data-cerrar>Cancelar</button></div>
+ <div class="db"><p class="soft" id="anuInfo" style="margin-top:0"></p><label for="anuMot" class="soft" style="font-size:.8rem">Motivo (obligatorio)</label>
+  <textarea id="anuMot" maxlength="200" placeholder="Duplicado del cierre anterior"></textarea><p class="err" id="anuErr" hidden></p></div>
+ <div class="df"><button class="peligro" id="anuOk">Anular cierre</button></div></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const SB='https://pvgdkcadqakfercyguhd.supabase.co',
+KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2Z2RrY2FkcWFrZmVyY3lndWhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjI4OTEsImV4cCI6MjA4ODg5ODg5MX0.6K3ei27nBJ6jVwSWskrnpYlTUAs4i3nPbbwTm1eGB9M';
+// ?demo: datos ficticios generados en el navegador; nunca toca la base
+const DEMO=new URLSearchParams(location.search).has('demo');
+const sb=DEMO?null:supabase.createClient(SB,KEY),$=i=>document.getElementById(i);
+const h=(t,p={},...k)=>{const e=document.createElement(t);Object.assign(e,p);e.append(...k);return e};
+let tT;const toast=(m,e)=>{const t=$('toast');clearTimeout(tT);t.textContent=m;t.className='toast show'+(e?' error':'');tT=setTimeout(()=>t.className='toast',2800)};
+
+// ---- Fechas (siempre en hora de Lima) ----
+const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'],DIA=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const hoyLima=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Lima'}).format(new Date());
+const fd=f=>new Date(f+'T12:00:00Z');
+const sumarDias=(f,n)=>{const d=fd(f);d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
+const dsem=f=>fd(f).getUTCDay();
+const fCorta=f=>{const d=fd(f);return d.getUTCDate()+' '+MES[d.getUTCMonth()]};
+const fLarga=f=>{const d=fd(f);return DIA[d.getUTCDay()]+' '+d.getUTCDate()+' de '+MES[d.getUTCMonth()]+' '+d.getUTCFullYear()};
+const rangoFechas=(a,b)=>{const r=[];for(let f=a;f<=b;f=sumarDias(f,1))r.push(f);return r};
+// "3 viernes", "2 sábados": los días terminados en s no cambian en plural
+const diasDe=(f,n)=>{const d=DIA[dsem(f)];return n+' '+(n>1&&!d.endsWith('s')?d+'s':d)};
+
+// ---- Dinero en céntimos enteros: evita los errores de coma flotante ----
+const cts=v=>v==null||v===''?null:Math.round(Number(v)*100);
+const fmt=c=>(c/100).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const sol=c=>c==null?'—':'S/ '+fmt(c);
+const solSig=c=>(c>0?'+':c<0?'−':'')+'S/ '+fmt(Math.abs(c));
+const pct=(a,b)=>b?Math.round(a*1000/b)/10:null;
+const pctTxt=(p,sig)=>p==null?'—':(sig&&p>0?'+':'')+p.toLocaleString('es-PE',{maximumFractionDigits:1})+'%';
+const RUB=[['libreria','Librería'],['color','Color'],['a3','A3'],['scan','Scan'],['espiral','Espiral']];
+const COL={libreria:'#0A84FF',color:'#64D2FF',a3:'#5E5CE6',espiral:'#8E8E93',scan:'#AEAEB2'};
+
+// ---- Estado de la vista (el periodo elegido se recuerda en este dispositivo) ----
+const est={r:'hoy',desde:'',hasta:'',op:'',estado:'todos',tab:'comp'};
+try{const g=JSON.parse(localStorage.getItem('panel')||'{}');if(g.r)est.r=g.r;if(g.tab)est.tab=g.tab}catch(e){}
+const guardarEst=()=>{try{localStorage.setItem('panel',JSON.stringify({r:est.r,tab:est.tab}))}catch(e){}};
+let filas=[],datosDemo=null;   // filas: cierres de la ventana cargada (periodo + historial para comparar)
+
+function fijarRango(){const hoy=hoyLima();
+ if(est.r==='hoy')est.desde=est.hasta=hoy;
+ else if(est.r==='ayer')est.desde=est.hasta=sumarDias(hoy,-1);
+ else if(est.r==='mes'){est.desde=hoy.slice(0,8)+'01';est.hasta=hoy}
+ else if(/^\d+$/.test(est.r)){est.hasta=hoy;est.desde=sumarDias(hoy,1-Number(est.r))}
+ else est.desde=est.hasta=est.r}   // fecha puntual YYYY-MM-DD
+
+// Normaliza una fila de cierres_panel a céntimos
+const norm=r=>({id:r.id,fecha:r.fecha,turno:r.turno,operador:r.operador||'',
+ rub:Object.fromEntries(RUB.map(([k])=>[k,cts(r[k])])),yape:cts(r.yape),efectivo:cts(r.efectivo),n_op:r.n_op||'',ops:r.ops_agente,
+ venta:cts(r.venta),completo:r.completo,anulado:r.anulado,motivo:r.anulado_motivo,dup:r.posible_duplicado,items:r.items||[],creado:r.created_at});
+
+async function cargar(){
+ fijarRango();pintarFiltros();
+ // 63 días antes: día anterior, periodo anterior (hasta 31 días) y 8 semanas para "mismo día de la semana"
+ const ini=sumarDias(est.desde,-63);$('contenido').classList.add('cargando');
+ try{
+  if(DEMO)filas=datosDemo.filter(r=>r.fecha>=ini&&r.fecha<=est.hasta).map(norm);
+  else{const{data,error}=await sb.from('cierres_panel').select('*').gte('fecha',ini).lte('fecha',est.hasta).order('fecha').order('id');
+   if(error)throw error;filas=data.map(norm)}
+  llenarOperadores();pintar()}
+ catch(e){toast('No se pudieron cargar los cierres. Intenta de nuevo.',1)}
+ finally{$('contenido').classList.remove('cargando')}}
+
+function llenarOperadores(){const s=$('opSel'),v=est.op,ops=[...new Set(filas.map(r=>r.operador).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+ s.replaceChildren(h('option',{value:'',textContent:'Todos los operadores'}),...ops.map(o=>h('option',{value:o,textContent:o})));
+ s.value=ops.includes(v)?v:'';est.op=s.value}
+
+// Cierres que cuentan en las estadísticas: con efectivo o Yape, no anulados y del operador elegido
+const cuenta=r=>r.completo&&!r.anulado&&(!est.op||r.operador===est.op);
+function porDia(){const m=new Map();
+ for(const r of filas){if(!cuenta(r))continue;
+  const d=m.get(r.fecha)||{venta:0,efectivo:0,yape:0,ops:0,rub:Object.fromEntries(RUB.map(([k])=>[k,0])),n:0};
+  d.venta+=r.venta;d.efectivo+=r.efectivo||0;d.yape+=r.yape||0;d.ops+=r.ops||0;d.n++;
+  for(const[k]of RUB)d.rub[k]+=r.rub[k]||0;m.set(r.fecha,d)}
+ return m}
+const sumar=(m,fechas)=>{const t={venta:0,efectivo:0,yape:0,ops:0,rub:Object.fromEntries(RUB.map(([k])=>[k,0])),dias:0};
+ for(const f of fechas){const d=m.get(f);if(!d)continue;t.dias++;t.venta+=d.venta;t.efectivo+=d.efectivo;t.yape+=d.yape;t.ops+=d.ops;for(const[k]of RUB)t.rub[k]+=d.rub[k]}
+ return t};
+// Promedio de la venta en los mismos días de la semana anteriores (hasta 8 semanas, días con cierres)
+function promMismoDia(m,f){const v=[];for(let i=1;i<=8;i++){const d=m.get(sumarDias(f,-7*i));if(d)v.push(d.venta)}
+ return v.length?{prom:Math.round(v.reduce((a,b)=>a+b,0)/v.length),n:v.length}:null}
+
+// ---- Pintado ----
+function pintarFiltros(){
+ document.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.r===est.r)));
+ $('fecha').value=/^\d{4}-/.test(est.r)?est.r:'';$('fecha').max=hoyLima();
+ const n=rangoFechas(est.desde,est.hasta).length;
+ $('periodoTxt').textContent=n===1?fLarga(est.desde):fLarga(est.desde)+' — '+fLarga(est.hasta)+' · '+n+' días'}
+
+function pintar(){const m=porDia(),fechas=rangoFechas(est.desde,est.hasta),esDia=fechas.length===1,t=sumar(m,fechas);
+ pintarAlertas(fechas);pintarKpis(m,fechas,t,esDia);pintarRubros(m,fechas,t,esDia);
+ const ventana=esDia?rangoFechas(sumarDias(est.desde,-13),est.desde):fechas;
+ pintarEvolucion(m,ventana);pintarTab(m,ventana);pintarBitacora()}
+
+function pintarAlertas(fechas){const a=$('alerta'),en=r=>r.fecha>=est.desde&&r.fecha<=est.hasta&&(!est.op||r.operador===est.op);
+ const exc=filas.filter(r=>en(r)&&!r.completo&&!r.anulado).length,dup=filas.filter(r=>en(r)&&r.dup&&!r.anulado).length,anu=filas.filter(r=>en(r)&&r.anulado).length;
+ const p=[];if(exc)p.push(exc+(exc>1?' cierres':' cierre')+' sin efectivo ni Yape (excluidos)');if(dup)p.push(dup+(dup>1?' posibles duplicados':' posible duplicado'));if(anu)p.push(anu+(anu>1?' anulados':' anulado'));
+ a.hidden=!p.length;if(!p.length)return;
+ a.replaceChildren(h('span',{textContent:'⚠ '+p.join(' · ')}),h('button',{className:'sec mini btn',textContent:'Ver en bitácora',onclick:()=>{est.estado=(exc||dup)?'obs':'anulado';$('estSel').value=est.estado;pintarBitacora();$('tb').closest('.card').scrollIntoView({behavior:'smooth'})}}))}
+
+function kpi(l,v,s,cl){return h('div',{className:'card k'},h('div',{className:'l',textContent:l}),h('div',{className:'v'+(cl?' '+cl:''),textContent:v}),h('div',{className:'s',textContent:s}))}
+function pintarKpis(m,fechas,t,esDia){const K=$('kpis');K.replaceChildren();
+ if(!t.dias){K.append(kpi(esDia?'Venta del día':'Venta del periodo','—',esDia?'Sin cierres este día':'Sin cierres en este periodo'),
+  kpi('Variación','—',''),kpi('Yape/Plin','—',''),kpi('Efectivo','—',''),kpi('Operaciones agente','—',''));return}
+ // Variación: un día → día anterior con cierres y promedio del mismo día de la semana; periodo → periodo anterior igual de largo
+ let v='—',s='',cl='';
+ if(esDia){const f=fechas[0],prev=[...m.keys()].filter(x=>x<f).sort().pop(),pm=promMismoDia(m,f),d=m.get(f).venta;
+  if(prev){const dv=d-m.get(prev).venta;v=solSig(dv);cl=dv>=0?'sube':'baja';s=pctTxt(pct(dv,m.get(prev).venta),1)+' vs '+fCorta(prev)}
+  else s='Sin día anterior con cierres';
+  s+=pm?' · '+pctTxt(pct(d-pm.prom,pm.prom),1)+' vs prom. de '+diasDe(f,pm.n):' · '+DIA[dsem(f)]+': sin historial'}
+ else{const n=fechas.length,ant=sumar(m,rangoFechas(sumarDias(est.desde,-n),sumarDias(est.desde,-1)));
+  if(ant.dias){const dv=t.venta-ant.venta;v=solSig(dv);cl=dv>=0?'sube':'baja';s=pctTxt(pct(dv,ant.venta),1)+' vs los '+n+' días anteriores'}
+  else s='Sin datos del periodo anterior'}
+ K.append(kpi(esDia?'Venta del día':'Venta del periodo',sol(t.venta),esDia?'efectivo + Yape':t.dias+' días con cierres · prom. '+sol(Math.round(t.venta/t.dias))+'/día'),
+  kpi('Variación',v,s,cl),
+  kpi('Yape/Plin',sol(t.yape),pctTxt(pct(t.yape,t.venta))+' de la venta'),
+  kpi('Efectivo',sol(t.efectivo),pctTxt(pct(t.efectivo,t.venta))+' de la venta'),
+  kpi('Operaciones agente',String(t.ops),esDia?'pagos por POS':'pagos por POS · '+(Math.round(t.ops*10/t.dias)/10).toLocaleString('es-PE')+' por día'))}
+
+// ---- Gráficas (Chart.js) ----
+const charts={};
+function colores(){const s=getComputedStyle(document.documentElement),g=n=>s.getPropertyValue(n).trim();return{ink:g('--ink'),soft:g('--soft'),line:g('--line'),accent:g('--accent'),ok:g('--ok'),danger:g('--danger')}}
+function grafica(id,cfg){if(charts[id])charts[id].destroy();const c=$(id),cv=c.parentElement;cv.querySelector('.vacio')?.remove();c.hidden=false;
+ if(!window.Chart){c.hidden=true;cv.append(h('div',{className:'vacio',textContent:'No se pudieron cargar las gráficas. Revisa tu conexión.'}));return}
+ charts[id]=new Chart(c,cfg)}
+function vacio(id,txt){if(charts[id]){charts[id].destroy();delete charts[id]}const c=$(id);c.hidden=true;c.parentElement.querySelector('.vacio')?.remove();c.parentElement.append(h('div',{className:'vacio',textContent:txt}))}
+const ejeSoles={ticks:{callback:v=>'S/ '+v}};
+function base(extra={}){const c=colores();Chart.defaults.color=c.soft;Chart.defaults.borderColor=c.line;Chart.defaults.font.family=getComputedStyle(document.body).fontFamily;
+ return Object.assign({responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+  plugins:{legend:{labels:{boxWidth:10,boxHeight:10,useBorderRadius:true,borderRadius:3}},tooltip:{padding:10,cornerRadius:10}}},extra)}
+const tipSol=ctx=>' '+ctx.dataset.label+': '+(ctx.raw==null?'sin cierres':sol(Math.round(ctx.raw*100)));
+
+function pintarRubros(m,fechas,t,esDia){
+ $('rubT').textContent=esDia?'Rubros del día':'Rubros del periodo';
+ const reg=RUB.reduce((a,[k])=>a+t.rub[k],0),L=$('rubList');L.replaceChildren();
+ if(!t.dias||!reg){vacio('cRub',t.dias?'Sin rubros registrados':'Sin cierres');return}
+ // Tendencia: promedio diario del rubro frente al de la referencia (un día: 14 días previos; periodo: periodo anterior)
+ const ref=esDia?sumar(m,rangoFechas(sumarDias(est.desde,-14),sumarDias(est.desde,-1))):sumar(m,rangoFechas(sumarDias(est.desde,-fechas.length),sumarDias(est.desde,-1)));
+ const lider=RUB.reduce((a,[k])=>t.rub[k]>t.rub[a]?k:a,'libreria');
+ const orden=[...RUB].sort((a,b)=>t.rub[b[0]]-t.rub[a[0]]);
+ grafica('cRub',{type:'bar',data:{labels:orden.map(x=>x[1]),datasets:[{label:'Monto',data:orden.map(([k])=>t.rub[k]/100),backgroundColor:orden.map(([k])=>COL[k]),borderRadius:6,maxBarThickness:26}]},
+  options:base({indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+sol(Math.round(ctx.raw*100))+' · '+pctTxt(pct(Math.round(ctx.raw*100),reg))+' de lo registrado'}}},scales:{x:ejeSoles,y:{grid:{display:false}}}})});
+ for(const[k,n]of orden){const v=t.rub[k],p=pct(v,reg);let tr='',tt='Sin referencia';
+  if(ref.dias){const a=v/t.dias,b=ref.rub[k]/ref.dias;if(b){const d=(a-b)/b;tr=d>.1?'▲':d<-.1?'▼':'＝';tt=(d>=0?'+':'')+Math.round(d*100)+'% vs '+(esDia?'promedio de los 14 días previos':'periodo anterior')}}
+  L.append(h('li',{},h('span',{className:'dot',style:'background:'+COL[k]}),h('span',{className:'n',textContent:n}),
+   ...(k===lider&&v?[h('span',{className:'tag lider',textContent:'líder'})]:[]),
+   h('span',{textContent:sol(v)}),h('span',{className:'soft',textContent:pctTxt(p)}),
+   h('span',{className:'t '+(tr==='▲'?'sube':tr==='▼'?'baja':'soft'),textContent:tr||'·',title:tt})))}
+ L.append(h('li',{className:'soft',style:'font-size:.75rem;border-top:none',textContent:'% sobre lo registrado (la impresión B/N no se calcula). ▲▼ frente a '+(esDia?'los 14 días previos.':'el periodo anterior.')}))}
+
+function pintarEvolucion(m,ventana){
+ $('evoT').textContent='Evolución de la venta · '+ventana.length+' días';
+ const datos=ventana.map(f=>m.get(f)?m.get(f).venta/100:null),con=datos.filter(x=>x!=null);
+ if(!con.length){vacio('cEvo','Sin cierres en estos días');return}
+ const prom=Math.round(con.reduce((a,b)=>a+b,0)*100/con.length)/100,c=colores();
+ grafica('cEvo',{data:{labels:ventana.map(fCorta),datasets:[
+   {type:'bar',label:'Venta',data:datos,backgroundColor:c.accent,borderRadius:6,maxBarThickness:28},
+   {type:'line',label:'Promedio diario',data:ventana.map(()=>prom),borderColor:c.soft,borderDash:[5,4],borderWidth:1.5,pointRadius:0}]},
+  options:base({plugins:{tooltip:{callbacks:{label:tipSol}}},scales:{y:{...ejeSoles,beginAtZero:true},x:{grid:{display:false}}}})})}
+
+function pintarTab(m,ventana){
+ document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===est.tab)));
+ const lbl=ventana.map(fCorta),c=colores(),R=$('tabRes');
+ if(!ventana.some(f=>m.get(f))){R.textContent='';vacio('cTab','Sin cierres en estos días');return}
+ if(est.tab==='comp'){R.textContent='Cómo se compuso lo registrado cada día (sin impresión B/N).';
+  grafica('cTab',{type:'bar',data:{labels:lbl,datasets:RUB.map(([k,n])=>({label:n,data:ventana.map(f=>m.get(f)?m.get(f).rub[k]/100:null),backgroundColor:COL[k],borderRadius:3,maxBarThickness:30}))},
+   options:base({plugins:{tooltip:{callbacks:{label:tipSol}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,...ejeSoles}}})})}
+ else if(est.tab==='pago'){const t=sumar(m,ventana);
+  R.textContent='Acumulado: Yape/Plin '+sol(t.yape)+' ('+pctTxt(pct(t.yape,t.venta))+') · Efectivo '+sol(t.efectivo)+' ('+pctTxt(pct(t.efectivo,t.venta))+')';
+  const p=(f,k)=>{const d=m.get(f);return d&&d.venta?Math.round(d[k]*1000/d.venta)/10:null};
+  grafica('cTab',{type:'bar',data:{labels:lbl,datasets:[{label:'Yape/Plin',data:ventana.map(f=>p(f,'yape')),backgroundColor:c.accent,borderRadius:3,maxBarThickness:30},
+   {label:'Efectivo',data:ventana.map(f=>p(f,'efectivo')),backgroundColor:'#8E8E93',borderRadius:3,maxBarThickness:30}]},
+   options:base({plugins:{tooltip:{callbacks:{label:ctx=>{const d=m.get(ventana[ctx.dataIndex]);return ctx.raw==null?' sin cierres':' '+ctx.dataset.label+': '+pctTxt(ctx.raw)+' · '+sol(ctx.datasetIndex?d.efectivo:d.yape)}}}},
+    scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,max:100,ticks:{callback:v=>v+'%'}}}})})}
+ else{const v=ventana.map(f=>{const d=m.get(f),pm=promMismoDia(m,f);return d&&pm?(d.venta-pm.prom)/100:null});
+  const n=v.filter(x=>x!=null).length;
+  R.textContent=n?'Venta de cada día menos el promedio de los mismos días de la semana anteriores (hasta 8 semanas).':'Aún no hay historial del mismo día de la semana para comparar.';
+  if(!n){vacio('cTab','Historial insuficiente');return}
+  grafica('cTab',{type:'bar',data:{labels:lbl,datasets:[{label:'Diferencia',data:v,backgroundColor:v.map(x=>x>=0?c.ok:c.danger),borderRadius:4,maxBarThickness:28}]},
+   options:base({plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{if(ctx.raw==null)return' sin comparación';const f=ventana[ctx.dataIndex],pm=promMismoDia(m,f);
+    return' '+solSig(Math.round(ctx.raw*100))+' vs promedio de '+diasDe(f,pm.n)+' ('+sol(pm.prom)+')'}}}},scales:{y:ejeSoles,x:{grid:{display:false}}}})})}}
+
+// ---- Bitácora ----
+const estadoDe=r=>r.anulado?['Anulado','mal']:!r.completo?['Excluido','gris']:r.dup?['¿Duplicado?','warn']:['Completo','ok'];
+function bitacora(){return filas.filter(r=>r.fecha>=est.desde&&r.fecha<=est.hasta&&(!est.op||r.operador===est.op)).filter(r=>{
+  const e=est.estado;return e==='todos'||(e==='completo'&&r.completo&&!r.anulado&&!r.dup)||(e==='obs'&&!r.anulado&&(!r.completo||r.dup))||(e==='excluido'&&!r.completo&&!r.anulado)||(e==='anulado'&&r.anulado)})
+ .sort((a,b)=>b.fecha.localeCompare(a.fecha)||b.id-a.id)}
+function pintarBitacora(){const tb=$('tb'),rs=bitacora();tb.replaceChildren();
+ if(!rs.length){tb.append(h('tr',{},h('td',{colSpan:13,style:'text-align:center;color:var(--soft);padding:18px',textContent:'No hay cierres con este filtro.'})));return}
+ for(const r of rs){const[et,ec]=estadoDe(r);
+  tb.append(h('tr',{className:r.anulado||!r.completo?'fuera':''},
+   h('td',{},fCorta(r.fecha),h('span',{className:'soft',textContent:r.turno&&r.turno!=='Mañana'?' · '+r.turno:''})),h('td',{textContent:r.operador||'—'}),
+   ...RUB.map(([k])=>h('td',{textContent:r.rub[k]==null?'—':fmt(r.rub[k])})),
+   h('td',{textContent:r.yape==null?'—':fmt(r.yape)}),h('td',{textContent:r.n_op||'—'}),h('td',{textContent:r.efectivo==null?'—':fmt(r.efectivo)}),
+   h('td',{textContent:r.completo?fmt(r.venta):'—',style:'font-weight:600'}),
+   h('td',{},h('span',{className:'tag '+ec,textContent:et,title:r.anulado?'Motivo: '+r.motivo:!r.completo?'Sin efectivo ni Yape: no entra en las estadísticas':r.dup?'Mismo efectivo y Yape que otro cierre del día':''})),
+   h('td',{},h('div',{className:'acc'},h('button',{className:'sec mini',textContent:'Detalle',onclick:()=>verDetalle(r)}),
+    r.anulado?h('button',{className:'sec mini',textContent:'Restaurar',onclick:e=>restaurar(r,e.currentTarget)})
+     :h('button',{className:'sec mini',textContent:'Anular',style:'color:var(--danger)',onclick:()=>pedirAnular(r)})))))}}
+
+function verDetalle(r){const[et,ec]=estadoDe(r),hora=r.creado?new Intl.DateTimeFormat('es-PE',{timeZone:'America/Lima',hour:'2-digit',minute:'2-digit'}).format(new Date(r.creado)):'—';
+ $('detT').textContent='Cierre #'+r.id+' · '+fCorta(r.fecha);
+ const fila=(l,v)=>[h('span',{textContent:l}),h('b',{textContent:v})];
+ $('detB').replaceChildren(h('div',{className:'det'},...fila('Fecha',fLarga(r.fecha)),...fila('Hora de cierre',hora),...fila('Turno',r.turno||'—'),...fila('Operador',r.operador||'—'),
+   ...RUB.flatMap(([k,n])=>fila(n,sol(r.rub[k]))),...fila('Yape/Plin',sol(r.yape)),...fila('Efectivo (Total S/)',sol(r.efectivo)),...fila('N° op. agente',r.n_op||'—'),
+   ...fila('Venta',r.completo?sol(r.venta):'— (excluido)'),...fila('Estado',et)),
+  ...(r.anulado?[h('p',{className:'err',textContent:'Anulado: '+r.motivo})]:[]),
+  h('h2',{textContent:'Productos de librería ('+r.items.length+')',style:'margin-top:8px'}),
+  r.items.length?h('table',{style:'min-width:0'},h('thead',{},h('tr',{},h('th',{textContent:'Producto',style:'text-align:left'}),h('th',{textContent:'Cant.'}),h('th',{textContent:'Subtotal'}))),
+   h('tbody',{},...r.items.map(i=>h('tr',{},h('td',{textContent:i.nombre,style:'text-align:left;white-space:normal'}),h('td',{textContent:i.cantidad}),h('td',{textContent:sol(cts(i.subtotal))})))))
+   :h('p',{className:'soft',textContent:'Sin productos.'}));
+ $('detF').replaceChildren(r.anulado?h('button',{className:'sec',textContent:'Restaurar',onclick:e=>{$('dlgDet').close();restaurar(r,e.currentTarget)}})
+  :h('button',{className:'sec',textContent:'Anular',style:'color:var(--danger)',onclick:()=>{$('dlgDet').close();pedirAnular(r)}}));
+ $('dlgDet').showModal()}
+
+// ---- Anular / restaurar (con motivo y registro en auditoría) ----
+let anulando=null;
+function pedirAnular(r){anulando=r;$('anuInfo').textContent='Cierre #'+r.id+' del '+fLarga(r.fecha)+(r.completo?' · venta '+sol(r.venta):'')+'. Saldrá de las estadísticas; podrás restaurarlo.';
+ $('anuMot').value=r.dup?'Duplicado de otro cierre del mismo día':'';$('anuErr').hidden=true;$('dlgAnu').showModal();$('anuMot').focus()}
+$('anuMot').oninput=()=>$('anuErr').hidden=true;
+$('anuOk').onclick=async e=>{const b=e.currentTarget,mot=$('anuMot').value.trim();
+ if(mot.length<3){$('anuErr').textContent='Escribe el motivo (al menos 3 letras).';$('anuErr').hidden=false;return}
+ b.disabled=true;try{
+  if(DEMO){const d=datosDemo.find(x=>x.id===anulando.id);d.anulado=true;d.anulado_motivo=mot;recalcDupDemo()}
+  else{const{error}=await sb.rpc('caja_cierre_anular',{p_id:anulando.id,p_motivo:mot});if(error)return toast(error.message,1)}
+  $('dlgAnu').close();toast('Cierre #'+anulando.id+' anulado');await cargar()}finally{b.disabled=false}};
+async function restaurar(r,b){if(!confirm('¿Restaurar el cierre #'+r.id+'? Volverá a contar en las estadísticas.'))return;
+ if(b)b.disabled=true;try{
+  if(DEMO){const d=datosDemo.find(x=>x.id===r.id);d.anulado=false;d.anulado_motivo=null;recalcDupDemo()}
+  else{const{error}=await sb.rpc('caja_cierre_restaurar',{p_id:r.id});if(error)return toast(error.message,1)}
+  toast('Cierre #'+r.id+' restaurado');await cargar()}finally{if(b)b.disabled=false}}
+document.querySelectorAll('[data-cerrar]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
+document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
+
+// ---- Exportar CSV (UTF-8 con BOM: Excel lo abre con tildes y S/) ----
+$('csv').onclick=()=>{const rs=bitacora();if(!rs.length)return toast('No hay cierres para exportar',1);
+ const q=v=>{const s=v==null?'':String(v);return /[",\n;]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s},n=c=>c==null?'':(c/100).toFixed(2);
+ const cab=['id','fecha','turno','operador','libreria','color','a3','scan','espiral','yape_plin','n_operaciones_agente','efectivo','venta','estado','motivo_anulacion'];
+ const lin=rs.map(r=>[r.id,r.fecha,r.turno,r.operador,...RUB.map(([k])=>n(r.rub[k])),n(r.yape),r.n_op,n(r.efectivo),r.completo?n(r.venta):'',estadoDe(r)[0],r.anulado?r.motivo:''].map(q).join(','));
+ const blob=new Blob(['﻿'+[cab.join(','),...lin].join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const a=h('a',{href:URL.createObjectURL(blob),download:'caja_senati_'+est.desde+'_a_'+est.hasta+'.csv'});document.body.append(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast(rs.length+' cierres exportados')};
+
+// ---- Filtros ----
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{est.r=b.dataset.r;guardarEst();cargar()});
+$('fecha').onchange=()=>{if(!$('fecha').value)return;est.r=$('fecha').value;guardarEst();cargar()};
+$('opSel').onchange=()=>{est.op=$('opSel').value;pintar()};
+$('estSel').onchange=()=>{est.estado=$('estSel').value;pintarBitacora()};
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{est.tab=b.dataset.t;guardarEst();const m=porDia(),f=rangoFechas(est.desde,est.hasta);
+ pintarTab(m,f.length===1?rangoFechas(sumarDias(est.desde,-13),est.desde):f)});
+let tRes;addEventListener('resize',()=>{clearTimeout(tRes);tRes=setTimeout(()=>Object.values(charts).forEach(c=>c.resize()),150)});
+
+// ---- Modo demo: 45 días ficticios, con un cierre sin efectivo ni Yape y un duplicado ----
+function generarDemo(){let s=20261120;const rnd=()=>{s=(s*1664525+1013904223)%4294967296;return s/4294967296};
+ const pick=(a,b)=>Math.round((a+rnd()*(b-a))*10)/10,ops=['Roy','Rondow','Ana'],hoy=hoyLima(),out=[];let id=1000;
+ const prods=[['Impresión B/N A4',0.2],['Anillado espiral',3.5],['Cuaderno A4',6.5],['Lapicero azul',1],['Folder manila',0.8]];
+ for(let i=44;i>=0;i--){const f=sumarDias(hoy,-i);if(dsem(f)===0)continue;
+  const lib=pick(60,240),efe=pick(90,260),yap=pick(80,280),items=prods.slice(0,2+Math.floor(rnd()*3)).map(([n,p])=>{const c=1+Math.floor(rnd()*6);return{nombre:n,cantidad:c,subtotal:Math.round(c*p*100)/100}});
+  const r={id:id++,fecha:f,turno:'Mañana',operador:ops[Math.floor(rnd()*3)],libreria_total:lib,libreria:lib,color:pick(8,70),a3:rnd()<.7?pick(2,35):null,scan:rnd()<.5?pick(0.5,6):null,
+   espiral:rnd()<.6?pick(3,30):null,yape:yap,efectivo:efe,n_op:String(2+Math.floor(rnd()*11)),anulado:false,anulado_motivo:null,items,created_at:f+'T19:'+String(10+Math.floor(rnd()*40))+':00Z'};
+  if(i===9){r.yape=null;r.efectivo=null;r.color=r.a3=r.scan=r.espiral=null;r.n_op=''}   // cierre incompleto
+  out.push(r);if(i===4)out.push({...r,id:id++,created_at:f+'T19:59:00Z'})}            // duplicado
+ out.forEach(r=>{r.ops_agente=/^\d+$/.test(r.n_op)?Number(r.n_op):null});return out}
+function recalcDupDemo(){for(const r of datosDemo){const c=r=>r.efectivo!=null||r.yape!=null;
+ r.completo=c(r);r.venta=Math.round(((r.efectivo||0)+(r.yape||0))*100)/100;
+ r.posible_duplicado=c(r)&&datosDemo.some(d=>d.fecha===r.fecha&&d.id!==r.id&&!d.anulado&&d.efectivo===r.efectivo&&d.yape===r.yape)}}
+
+// ---- Acceso: solo administradores ----
+function bloquear(msg,ir){$('bloqueoMsg').textContent=msg;$('bloqueoIr').hidden=!ir;$('bloqueo').hidden=false;$('panel').hidden=true}
+async function iniciar(){
+ if(DEMO){datosDemo=generarDemo();recalcDupDemo();$('demoTag').hidden=false;$('salir').hidden=true}
+ else{const{data:{session}}=await sb.auth.getSession();
+  if(!session)return bloquear('Inicia sesión en la caja para entrar al panel.',true);
+  const{data:rol,error}=await sb.rpc('rol_actual');
+  if(error)return bloquear('No se pudo verificar tu cuenta. Recarga la página para intentar de nuevo.');
+  if(rol!=='admin')return bloquear('El panel es solo para administradores.',true)}
+ $('bloqueo').hidden=true;$('panel').hidden=false;cargar()}
+$('salir').onclick=async()=>{await sb.auth.signOut();location.href='index.html'};
+if(sb)sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT')bloquear('Tu sesión se cerró.',true)});
+iniciar();
+</script>
+</body></html>

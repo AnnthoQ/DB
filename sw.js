@@ -1,7 +1,7 @@
 // Service worker: permite instalar la app y abrirla aunque falle la red.
 // Sube el número de versión cada vez que quieras forzar la actualización.
-const CACHE = 'caja-senati-v6';
-const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+const CACHE = 'caja-senati-v7';
+const SHELL = ['./', './index.html', './panel.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 const CDN = ['cdn.jsdelivr.net', 'cdnjs.cloudflare.com'];
 
 self.addEventListener('install', e => {
@@ -26,13 +26,18 @@ self.addEventListener('fetch', e => {
   if (!mismoOrigen && !CDN.includes(url.hostname)) return;
 
   // Páginas: red primero, caché si no hay conexión.
+  // Cada página se guarda con su propia ruta (sin ?parámetros): así abrir el panel
+  // no reemplaza la copia offline de la caja.
   if (req.mode === 'navigate') {
+    const clave = url.origin + url.pathname;
     e.respondWith(
       fetch(req).then(res => {
-        const copia = res.clone();
-        caches.open(CACHE).then(c => c.put('./index.html', copia));
+        if (res.ok) {
+          const copia = res.clone();
+          caches.open(CACHE).then(c => c.put(clave, copia));
+        }
         return res;
-      }).catch(() => caches.match('./index.html'))
+      }).catch(() => caches.match(clave).then(r => r || caches.match('./index.html')))
     );
     return;
   }
