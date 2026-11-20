@@ -215,17 +215,23 @@ const idb=(()=>{const p=new Promise(r=>{try{const o=indexedDB.open('caja',1);o.o
 
 // ---- Auth ----
 const mostrar=b=>{$('login').hidden=b;$('app').hidden=!b};
-$('lg').onsubmit=async e=>{e.preventDefault();
- const{error}=await sb.auth.signInWithPassword({email:$('cod').value.trim()+'@inv.local',password:$('pw').value});
- if(error)return toast('Código o contraseña incorrectos',1);$('pw').value='';entrar()};
+// El botón queda bloqueado mientras se procesa: varios toques seguidos mandaban varios logins a la vez y saturaban el servidor
+const btnIn=document.querySelector('#lg button');
+$('lg').onsubmit=e=>{e.preventDefault();ocupado(btnIn,async()=>{btnIn.textContent='Ingresando…';
+ try{const{error}=await sb.auth.signInWithPassword({email:$('cod').value.trim()+'@inv.local',password:$('pw').value});
+  if(error)return toast(error.status===400||error.status===422?'Código o contraseña incorrectos':'El servidor no respondió a tiempo. Intenta de nuevo.',1);
+  $('pw').value='';await entrar()}
+ finally{btnIn.textContent='Ingresar'}})};
 $('salir').onclick=async()=>{await idb.set('cat',null);if(canal){sb.removeChannel(canal);canal=null}await sb.auth.signOut();cat=[];orden=[];mostrar(false)};
 async function entrar(){
  const{data:{session}}=await sb.auth.getSession();if(!session)return mostrar(false);
- const{data:ok}=await sb.rpc('es_operador');
- if(!ok){await sb.auth.signOut();toast('Tu cuenta no tiene acceso a la caja',1);return mostrar(false)}
- mostrar(true);iniciar();
+ // Una sola consulta: rol_actual() da admin/trabajador/usuario, o null si la cuenta está desactivada
+ const{data:rol,error}=await sb.rpc('rol_actual');
+ if(error){toast('No se pudo verificar tu cuenta. Intenta de nuevo.',1);return mostrar(false)}
+ if(rol!=='admin'&&rol!=='trabajador'){await sb.auth.signOut();toast('Tu cuenta no tiene acceso a la caja',1);return mostrar(false)}
  // Solo un administrador puede asignar precios (trigger proteger_precio_producto), así que solo él ve el alta de productos
- const{data:adm}=await sb.rpc('es_admin');$('tn').hidden=!adm;if(!adm)$('fa').hidden=true}
+ $('tn').hidden=rol!=='admin';if(rol!=='admin')$('fa').hidden=true;
+ mostrar(true);iniciar()}
 
 // ---- Catálogo: caché local + sincronización ----
 let cat=[],orden=[],canal=null,tmr=null,animando=false;
